@@ -6,7 +6,7 @@ from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from asyncpg import create_pool
 
-from app.utils import get_db
+from api.utils import get_db
 
 
 app = FastAPI()
@@ -63,7 +63,7 @@ async def route(query: RouteQuery, db=Depends(get_db)):
             SELECT ARRAY (
                 SELECT id
                 FROM cyklaiskane_vertices_pgr JOIN q
-                ON ST_DWithin(q.source, the_geom, 100)
+                ON ST_DWithin(q.source, the_geom, 500)
                 ORDER BY ST_Distance(q.source, the_geom) ASC
                 LIMIT 2
             ) aid
@@ -71,7 +71,7 @@ async def route(query: RouteQuery, db=Depends(get_db)):
             SELECT ARRAY (
                 SELECT id
                 FROM cyklaiskane_vertices_pgr JOIN q
-                ON ST_DWithin(q.target, the_geom, 100)
+                ON ST_DWithin(q.target, the_geom, 500)
                 ORDER BY ST_Distance(q.target, the_geom) ASC
                 LIMIT 2
             ) aid
@@ -118,7 +118,7 @@ async def shutdown():
 
 def main():
     import uvicorn
-    uvicorn.run('app.main:app', reload=True, log_level='debug')
+    uvicorn.run('api.main:app', host='0.0.0.0', reload=True, log_level='debug')
 
 
 if __name__ == '__main__':
