@@ -1,0 +1,19 @@
+version: '3.7'
+
+
+services:
+  db:
+    image: pgrouting/pgrouting:12-3.0-2.6.3
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./data:/data
+    ports:
+      - 5433:5432
+
+
+volumes:
+  db-data:
