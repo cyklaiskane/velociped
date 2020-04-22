@@ -95,7 +95,7 @@ async def route(query: RouteQuery, db=Depends(get_db)):
             'type', 'FeatureCollection',
             'features', json_agg(ST_AsGeoJSON(r.*)::json)
         ) json
-        FROM (SELECT ST_Transform(geom, 4326) as geom FROM pgr_dijkstra({0}, (SELECT aid FROM start_ids), (SELECT aid FROM end_ids), FALSE) r
+        FROM (SELECT r.path_seq, ST_Transform(geom, 4326) as geom FROM pgr_dijkstra({0}, (SELECT aid FROM start_ids), (SELECT aid FROM end_ids), FALSE) r
         JOIN cyklaiskane c ON r.edge = c.objectid) r
     '''
     sql2 = """
@@ -107,11 +107,20 @@ async def route(query: RouteQuery, db=Depends(get_db)):
                         4326),
                     3006
                 ) line
+        ), w(ts_klass, weight) AS (
+            VALUES
+                (''C1'', 1), (''C2'', 1.1), (''C3'', 1.1),
+                (''B1'', 1.2), (''B2'', 1.3), (''B3'', 1.5), (''B4'', 1.9), (''B5'', -1),
+                (''G1'', 1.4), (''G2'', 1.6)
         )
-        SELECT objectid as id, from_vertex as source, to_vertex as target, shape_length as cost
+        SELECT
+            objectid as id,
+            from_vertex as source,
+            to_vertex as target,
+            shape_length * COALESCE(weight, -1) as cost
         FROM cyklaiskane c
-        JOIN q
-        ON ST_Dwithin(c.geom, q.line, 5000)'
+        JOIN q ON ST_DWithin(c.geom, q.line, 5000)
+        JOIN w ON c.ts_klass = w.ts_klass'
     """.format(*query.start.to_xy(), *query.end.to_xy())
     result = await db.fetchrow(sql.format(sql2, *query.start.to_xy(), *query.end.to_xy()))
     logging.debug(result)
