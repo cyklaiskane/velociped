@@ -19,6 +19,7 @@ async def get_db(request: Request):
         await con.set_type_codec(
             'geometry',
             encoder=encode_geometry,
-            decoder=decode_geometry
+            decoder=decode_geometry,
+            format='binary'
         )
         yield con

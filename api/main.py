@@ -1,5 +1,5 @@
 import logging
-
+from typing import List, Dict, Tuple
 from fastapi import FastAPI, Request, Depends, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
@@ -54,6 +54,11 @@ class RouteQuery(BaseModel):
     start: LatLng
     end: LatLng
 
+class Segment(BaseModel):
+    coords: List[Tuple[float,float]]
+
+class Route(BaseModel):
+    segments: List[Segment] = []
 
 @app.post('/api/point')
 async def point(latlng: LatLng, db=Depends(get_db)):
@@ -91,12 +96,12 @@ async def route(query: RouteQuery, db=Depends(get_db)):
                 LIMIT 2
             ) aid
         )
-        SELECT json_build_object(
-            'type', 'FeatureCollection',
-            'features', json_agg(ST_AsGeoJSON(r.*)::json)
-        ) json
-        FROM (SELECT r.path_seq, ST_Transform(geom, 4326) as geom FROM pgr_dijkstra({0}, (SELECT aid FROM start_ids), (SELECT aid FROM end_ids), FALSE) r
-        JOIN cyklaiskane c ON r.edge = c.objectid) r
+        SELECT
+            r.*,
+            ST_Transform(CASE WHEN r.node = c.from_vertex THEN geom ELSE ST_Reverse(geom) END, 4326) as geom
+        FROM pgr_dijkstra({0}, (SELECT aid FROM start_ids), (SELECT aid FROM end_ids), FALSE) r
+        JOIN cyklaiskane c ON r.edge = c.objectid
+        ORDER BY r.seq
     '''
     sql2 = """
         'WITH q AS (
@@ -122,9 +127,20 @@ async def route(query: RouteQuery, db=Depends(get_db)):
         JOIN q ON ST_DWithin(c.geom, q.line, 5000)
         JOIN w ON c.ts_klass = w.ts_klass'
     """.format(*query.start.to_xy(), *query.end.to_xy())
-    result = await db.fetchrow(sql.format(sql2, *query.start.to_xy(), *query.end.to_xy()))
-    logging.debug(result)
-    return Response(content=result.get('json', None), media_type='application/json')
+
+    result = await db.fetch(sql.format(sql2, *query.start.to_xy(), *query.end.to_xy()))
+
+    routes = []
+    route = None
+    for row in result:
+        if row['path_seq'] == 1:
+            route = Route()
+            routes.append(route)
+        #logging.debug(row['geom'].coords[:])
+        segment = Segment(coords=row['geom'].coords[:])
+        route.segments.append(segment)
+
+    return routes
 
 
 
