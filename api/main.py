@@ -3,6 +3,7 @@ import logging
 from fastapi import FastAPI, Request, Depends, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from starlette.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from asyncpg import create_pool
 
@@ -13,6 +14,20 @@ app = FastAPI()
 
 app.mount('/static', StaticFiles(directory='static'), name='static')
 
+CORS_ORIGINS = '*'
+origins = []
+if CORS_ORIGINS:
+    origins_raw = CORS_ORIGINS.split(',')
+    for origin in origins_raw:
+        use_origin = origin.strip()
+        origins.append(use_origin)
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=origins,
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    ),
 
 templates = Jinja2Templates(directory='templates')
 
