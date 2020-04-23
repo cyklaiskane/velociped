@@ -76,24 +76,19 @@ async def point(latlng: LatLng, db=Depends(get_db)):
 async def route(query: RouteQuery, db=Depends(get_db)):
     logging.debug(query)
     sql = '''
-        WITH q AS (
-            SELECT ST_Transform(ST_SetSRID(ST_MakePoint({1}, {2}), 4326), 3006) source,
-                   ST_Transform(ST_SetSRID(ST_MakePoint({3}, {4}), 4326), 3006) target
-        ), start_ids AS (
+        WITH start_ids AS (
             SELECT ARRAY (
                 SELECT id
-                FROM cyklaiskane_vertices_pgr JOIN q
-                ON ST_DWithin(q.source, the_geom, 500)
-                ORDER BY ST_Distance(q.source, the_geom) ASC
-                LIMIT 2
+                FROM cyklaiskane_vertices_pgr
+                ORDER BY the_geom <-> ST_Transform(ST_SetSRID(ST_MakePoint({1}, {2}), 4326), 3006) ASC
+                LIMIT 1
             ) aid
         ), end_ids AS (
             SELECT ARRAY (
                 SELECT id
-                FROM cyklaiskane_vertices_pgr JOIN q
-                ON ST_DWithin(q.target, the_geom, 500)
-                ORDER BY ST_Distance(q.target, the_geom) ASC
-                LIMIT 2
+                FROM cyklaiskane_vertices_pgr
+                ORDER BY the_geom <-> ST_Transform(ST_SetSRID(ST_MakePoint({3}, {4}), 4326), 3006) ASC
+                LIMIT 1
             ) aid
         )
         SELECT
