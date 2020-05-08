@@ -2,6 +2,21 @@ version: '3.7'
 
 
 services:
+  app:
+    image: velociped
+    environment:
+      POSTGRES_DSN: 'postgres://velociped:foobar@db/velociped'
+    ports:
+      - 8008:8000
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.routers.cyklaiskane.rule=Host(`cyklaiskane.travelvu.io`)"
+      - "traefik.http.routers.cyklaiskane.entrypoints=https"
+      - "traefik.http.routers.cyklaiskane.tls=true"
+      - "traefik.http.services.cyklaiskane.loadbalancer.server.port=8000"
+
+
   db:
     image: pgrouting/pgrouting:12-3.0-2.6.3
     environment:
@@ -17,3 +32,10 @@ services:
 
 volumes:
   db-data:
+
+
+networks:
+  default:
+    driver: bridge
+  travelvu_internal:
+    external: true
