@@ -11,6 +11,7 @@ from pydantic import BaseModel
 from asyncpg import create_pool
 
 from api.utils import get_db
+from api.config import POSTGRES_DSN
 
 
 app = FastAPI()
@@ -240,8 +241,7 @@ async def route(query: RouteQuery, db=Depends(get_db)):
 
 @app.on_event('startup')
 async def startup():
-    app.db = await create_pool(dsn='postgres://velociped:foobar@localhost:5433/velociped',
-                               min_size=5, max_size=10)
+    app.db = await create_pool(dsn=POSTGRES_DSN, min_size=5, max_size=10)
 
 
 @app.on_event('shutdown')
