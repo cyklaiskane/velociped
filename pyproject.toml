@@ -5,7 +5,7 @@ description = ""
 authors = ["Joakim Fors <joakim.fors@trivector.se>"]
 
 [tool.poetry.dependencies]
-python = "^3.8"
+python = "^3.7"
 fastapi = "^0.54.1"
 asyncpg = "^0.20.1"
 httpx = "^0.12.1"
