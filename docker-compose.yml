@@ -29,9 +29,21 @@ services:
     ports:
       - 5433:5432
 
+  admin:
+    image: dpage/pgadmin4
+    environment:
+      - PGADMIN_DEFAULT_EMAIL
+      - PGADMIN_DEFAULT_PASSWORD
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    ports:
+      - 5050:80
+
+
 
 volumes:
-  db-data:
+  db-data: {}
+  pgadmin-data: {}
 
 
 networks:
