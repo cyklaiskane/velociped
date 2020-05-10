@@ -59,7 +59,7 @@ class RouteQuery(BaseModel):
 
 
 class Segment(BaseModel):
-    coords: List[Tuple[float,float]]
+    coords: List[Tuple[float, float]]
 
 
 class Route(BaseModel):
