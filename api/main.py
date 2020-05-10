@@ -123,8 +123,8 @@ async def route(query: RouteQuery, db=Depends(get_db)):
             c.to_vertex,
             c.shape_length,
             r.*,
-            ST_Transform(CASE WHEN r.node = c.from_vertex THEN geom ELSE ST_Reverse(geom) END, 4326) as geom
-        FROM pgr_dijkstra('{sql}', {from_vertex}, {to_vertex}, FALSE) r
+            ST_Transform(CASE WHEN r.id1 = c.from_vertex THEN geom ELSE ST_Reverse(geom) END, 4326) as geom
+        FROM pgr_trsp('{sql}'::text, {from_vertex}, {to_vertex}, FALSE, FALSE, '{restrict_sql}') r
         JOIN (
             SELECT
                 objectid,
@@ -135,8 +135,12 @@ async def route(query: RouteQuery, db=Depends(get_db)):
                 geom
             FROM cyklaiskane
             {union_sql}
-        ) c ON r.edge = c.objectid
+        ) c ON r.id2 = c.objectid
         ORDER BY r.seq
+    '''
+
+    rsql = '''
+        SELECT * FROM cyklaiskane_restrictions
     '''
 
     sql3 = '''
@@ -219,14 +223,14 @@ async def route(query: RouteQuery, db=Depends(get_db)):
                union_sql=union_sql)
 
     sql_final = sql.format(sql=sql2_res.replace("'", "''"), from_vertex=wpt_vertex[0],
-                           to_vertex=wpt_vertex[-1], union_sql=union_sql)
+                           to_vertex=wpt_vertex[-1], union_sql=union_sql, restrict_sql=rsql)
     logging.debug(sql_final)
     result = await db.fetch(sql_final)
 
     routes = []
     route = None
     for row in result:
-        if row['path_seq'] == 1:
+        if row['seq'] == 0:
             route = Route()
             routes.append(route)
         #logging.debug(row['geom'].coords[:])
