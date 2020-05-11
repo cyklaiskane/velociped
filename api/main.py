@@ -82,116 +82,19 @@ async def point(latlng: LatLng, db=Depends(get_db)):
 async def route(query: RouteQuery, db=Depends(get_db)):
     debug(query)
 
-    statement = await db.prepare('''
-        SELECT
-          objectid,
-          ts_klass,
-          shape_length,
-          from_vertex,
-          to_vertex,
-          ST_StartPoint(geom) from_vertex_geom,
-          ST_EndPoint(geom) to_vertex_geom,
-          geom,
-          fraction,
-          point_geom,
-          ST_LineInterpolatePoint(geom, fraction) virtual_vertex_geom
-        FROM
-          ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 3006) point_geom,
-        LATERAL (
-          SELECT
-            ST_LineLocatePoint(roads.geom, point_geom) fraction, roads.*
-          FROM (
-            SELECT * FROM cyklaiskane ORDER BY geom <-> point_geom ASC LIMIT 10
-          ) roads
-          ORDER BY ST_Distance(roads.geom, point_geom) ASC
-          LIMIT 1
-        ) nearest;
-    ''')
+    waypoints_sql = []
+    for i, waypoint in enumerate(query.waypoints):
+        waypoints_sql.append(f'({i}, ST_Transform(ST_SetSRID(ST_MakePoint('
+                             f'{waypoint.lng}, {waypoint.lat})'
+                             ', 4326), 3006))')
+    debug(waypoints_sql)
 
-    waypoints = []
-    for waypoint in query.waypoints:
-        debug(waypoint)
-        waypoints.append(await statement.fetchrow(*waypoint.to_xy()))
-
-    debug(waypoints)
-
-    sql = '''
-        SELECT
-            c.objectid,
-            c.ts_klass,
-            c.from_vertex,
-            c.to_vertex,
-            c.shape_length,
-            r.*,
-            ST_Transform(CASE WHEN r.id1 = c.from_vertex THEN geom ELSE ST_Reverse(geom) END, 4326) as geom
-        FROM pgr_trsp('{sql}'::text, {from_vertex}, {to_vertex}, FALSE, FALSE, '{restrict_sql}') r
-        JOIN (
-            SELECT
-                objectid,
-                ts_klass,
-                shape_length,
-                from_vertex,
-                to_vertex,
-                geom
-            FROM cyklaiskane
-            {union_sql}
-        ) c ON r.id2 = c.objectid
-        ORDER BY r.seq
-    '''
-
-    rsql = '''
-        SELECT * FROM cyklaiskane_restrictions
-    '''
-
-    sql3 = '''
-        SELECT
-            {objectid}::integer objectid,
-            '{ts_klass}' ts_klass,
-            {shape_length}::float shape_length,
-            {from_vertex}::integer from_vertex,
-            {to_vertex}::integer to_vertex,
-            ST_LineSubstring(ST_GeomFromText('{geom}', 3006), {from_frac}, {to_frac}) geom
-    '''
-
-    wpt_sql = []
-    wpt_vertex = []
-    virtual_object_id = -9000
-    for i, wpt in enumerate(waypoints, start=9000):
-        frac = wpt['fraction']
-        if frac < 0.001:
-            wpt_vertex.append(wpt['from_vertex'])
-        elif frac > 0.999:
-            wpt_vertex.append(wpt['to_vertex'])
-        else:
-            wpt_vertex.append(-i)
-        res1 = sql3.format(objectid=virtual_object_id, ts_klass=wpt['ts_klass'],
-                           shape_length=wpt['shape_length'] * frac,
-                           from_vertex=wpt['from_vertex'],
-                           to_vertex=-i,
-                           geom=shapely.wkt.dumps(wpt['geom']),
-                           from_frac=0.0, to_frac=frac)
-        virtual_object_id -= 1
-        res2 = sql3.format(objectid=virtual_object_id, ts_klass=wpt['ts_klass'],
-                           shape_length=wpt['shape_length'] * (1 - frac),
-                           from_vertex=-i,
-                           to_vertex=wpt['to_vertex'],
-                           geom=shapely.wkt.dumps(wpt['geom']),
-                           from_frac=frac, to_frac=1.0)
-        virtual_object_id -= 1
-
-        wpt_sql.append(f'''
-        {res1}
-        UNION ALL
-        {res2}
-        ''')
-        debug(wpt_sql[-1])
-    debug(wpt_vertex)
-
-    sql2 = '''
-        WITH q AS (
-            SELECT
-                ST_MakeLine(ST_GeomFromText('{0}', 3006), ST_GeomFromText('{1}', 3006)) line
-        ), w(ts_klass, weight) AS (
+    inner_sql = f'''
+        WITH waypoints(id, geom) AS (
+            VALUES {','.join(waypoints_sql)}
+        ), path(geom) AS (
+            SELECT ST_MakeLine(geom) FROM waypoints
+        ), weights(ts_klass, weight) AS (
             VALUES
                 ('C1', 1), ('C2', 1.1), ('C3', 1.1),
                 ('B1', 1.2), ('B2', 1.3), ('B3', 1.5), ('B4', 1.9), ('B5', -1),
@@ -202,35 +105,53 @@ async def route(query: RouteQuery, db=Depends(get_db)):
             from_vertex as source,
             to_vertex as target,
             shape_length * COALESCE(weight, -1) as cost
-        FROM (
-            SELECT
-                objectid,
-                ts_klass,
-                shape_length,
-                from_vertex,
-                to_vertex,
-                geom
-            FROM cyklaiskane
-            JOIN q ON ST_DWithin(geom, q.line, 5000)
-            {union_sql}
-        ) c
-        JOIN w ON c.ts_klass = w.ts_klass
+        FROM cyklaiskane roads
+        JOIN path ON ST_DWithin(roads.geom, path.geom, 5000)
+        JOIN weights USING (ts_klass)
     '''
-    union_sql = '' if len(wpt_sql) == 0 else 'UNION ALL\n' + '\nUNION ALL\n'.join(wpt_sql)
-    logging.debug(union_sql)
-    sql2_res = sql2.format(shapely.wkt.dumps(waypoints[0]['virtual_vertex_geom']),
-               shapely.wkt.dumps(waypoints[-1]['virtual_vertex_geom']),
-               union_sql=union_sql)
 
-    sql_final = sql.format(sql=sql2_res.replace("'", "''"), from_vertex=wpt_vertex[0],
-                           to_vertex=wpt_vertex[-1], union_sql=union_sql, restrict_sql=rsql)
-    logging.debug(sql_final)
-    result = await db.fetch(sql_final)
+    route_sql = f'''
+        WITH waypoints(id, geom) AS (
+            VALUES {','.join(waypoints_sql)}
+        ), vias AS (
+            SELECT
+                point.id,
+                nearest.objectid,
+                nearest.fraction
+            FROM waypoints point,
+            LATERAL (
+                SELECT
+                  ST_LineLocatePoint(roads.geom, point.geom) fraction, roads.*
+                FROM (
+                  SELECT * FROM cyklaiskane ORDER BY geom <-> point.geom ASC LIMIT 10
+                ) roads
+                ORDER BY ST_Distance(roads.geom, point.geom) ASC
+                LIMIT 1
+            ) nearest
+        )
+        SELECT
+            roads.objectid,
+            roads.ts_klass,
+            roads.from_vertex,
+            roads.to_vertex,
+            roads.shape_length,
+            vias.id,
+            vias.fraction,
+            route.*,
+            ST_Transform(CASE WHEN route.id2 = roads.from_vertex THEN geom ELSE ST_Reverse(geom) END, 4326) as geom
+        FROM pgr_trspViaEdges('{inner_sql.replace("'", "''")}', (SELECT array_agg(objectid) FROM vias), (SELECT array_agg(fraction) FROM vias), FALSE, FALSE, 'SELECT * FROM cyklaiskane_restrictions') route
+        JOIN cyklaiskane roads ON route.id3 = roads.objectid
+        LEFT OUTER JOIN vias USING (objectid)
+        ORDER BY route.seq
+    '''
+    logging.debug(route_sql)
+
+    result = await db.fetch(route_sql)
 
     routes = []
     route = None
     for row in result:
-        if row['seq'] == 0:
+        if row['seq'] == 1:
             route = Route()
             routes.append(route)
         #logging.debug(row['geom'].coords[:])
