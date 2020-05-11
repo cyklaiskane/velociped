@@ -50,6 +50,7 @@ const Velorouter = L.Class.extend({
           name: 'Foo',
           summary: {totalTime: 1337, totalDistance: 42},
           coordinates: coordinates,
+          segments: route.segments,
           inputWaypoints: waypoints,
           waypoints: [],
           instructions: [],
@@ -65,12 +66,50 @@ const Velorouter = L.Class.extend({
   }
 });
 
+const Veloline = L.Routing.Line.extend({
+  initialize: function(route, options) {
+    options['styles'] = [{
+      color: 'black', opacity: 0.15, weight: 10,
+    }];
+    L.Routing.Line.prototype.initialize.call(this, route, options);
+
+    const styles = {
+      C1: {color: '#173C66', opacity: 1, weight: 3},
+      C2: {color: '#173C66', opacity: 1, weight: 3},
+      C3: {color: '#173C66', opacity: 1, weight: 3},
+      B1: {color: '#425AF3', opacity: 1, weight: 3},
+      B2: {color: '#70A3F3', opacity: 1, weight: 3},
+      B3: {color: '#DD898F', opacity: 1, weight: 3},
+      B4: {color: '#C52217', opacity: 1, weight: 3},
+      B5: {color: '#400000', opacity: 1, weight: 3},
+      G1: {color: '#8A5435', opacity: 1, weight: 3},
+      G2: {color: '#8A5435', opacity: 1, weight: 3},
+    }
+
+    for (const segment of route.segments) {
+      console.log(segment);
+      let pl = L.polyline(L.GeoJSON.coordsToLatLngs(segment.coords), styles[segment.ts_klass]);
+      this.addLayer(pl);
+    }
+  },
+
+  _addSegment: function(coords, styles, mouselistener) {
+    console.log(styles);
+    L.Routing.Line.prototype._addSegment.call(this, coords, styles, mouselistener);
+  },
+});
+
 var routing = new L.Routing.control({
   waypoints: [
     L.latLng(55.665193184436035, 13.355383872985841),
     L.latLng(55.66727479751119, 13.340320587158205)
   ],
   router: new Velorouter({foo: 'bar'}),
+  routeLine: function(route, options) {
+    console.log(options);
+    console.log(route.segments);
+    return new Veloline(route, options);
+  },
 }).addTo(map);
 
 var dark = L.tileLayer('https://api.maptiler.com/maps/darkmatter/{z}/{x}/{y}.png?key=jrAoRNrX6nfYt6nZNnnW', {
