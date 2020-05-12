@@ -114,8 +114,6 @@ async def route(query: RouteQuery, db=Depends(get_db)):
     return routes
 
 
-
-
 @app.on_event('startup')
 async def startup():
     app.db = await create_pool(dsn=POSTGRES_DSN, min_size=5, max_size=10)
