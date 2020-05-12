@@ -81,7 +81,8 @@ async def find_route(db, start, dest, profile=1):
             SELECT
                 point.id waypoint_id,
                 nearest.objectid,
-                nearest.fraction
+                nearest.fraction,
+                ST_LineInterpolatePoint(nearest.geom, nearest.fraction) geom
             FROM waypoints point,
             LATERAL (
                 SELECT
