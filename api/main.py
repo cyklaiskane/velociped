@@ -60,10 +60,16 @@ class RouteQuery(BaseModel):
 
 class Segment(BaseModel):
     coords: List[Tuple[float, float]]
+    name: str = None
     ts_klass: str
+    length: float
+    duration: float
 
 
 class Route(BaseModel):
+    name: str = ''
+    length: float = 0.0
+    duration: float = 0.0
     segments: List[Segment] = []
 
 
@@ -83,20 +89,28 @@ async def point(latlng: LatLng, db=Depends(get_db)):
 async def route(query: RouteQuery, db=Depends(get_db)):
     debug(query)
     routes = []
-    route = Route()
 
-    for start, dest in pairwise(query.waypoints):
-        debug(start, dest)
+    for name, i in [('Lämpligast', 1), ('Snabbast', 0), ('Säkrast', 2)]:
+        route = Route(name=name)
 
-        result = await find_route(db, start, dest)
+        for start, dest in pairwise(query.waypoints):
+            debug(start, dest)
 
-        for row in result:
-            if row['waypoint_id'] is not None:
-                debug(row)
-            segment = Segment(coords=row['geom'].coords[:], ts_klass=row['ts_klass'])
-            route.segments.append(segment)
-    #debug(routes)
-    routes.append(route)
+            result = await find_route(db, start, dest, profile=i)
+
+            for row in result:
+                if row['waypoint_id'] is not None:
+                    debug(row)
+                segment = Segment(coords=row['geom'].coords[:],
+                                  name=row['name'],
+                                  ts_klass=row['ts_klass'],
+                                  length=row['length'],
+                                  duration=row['duration'])
+                route.length += segment.length
+                route.duration += segment.duration
+                route.segments.append(segment)
+        #debug(routes)
+        routes.append(route)
     return routes
 
 
