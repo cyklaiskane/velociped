@@ -56,7 +56,7 @@ COPY --from=builder /venv /venv
 COPY . ./
 COPY --from=node-builder /app/dist/* /app/static/
 
-EXPOSE 8080
+EXPOSE 8000
 
 ENV PYTHONPATH=/app
 
