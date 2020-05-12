@@ -48,8 +48,8 @@ const Velorouter = L.Class.extend({
         const coordinates = route.segments.map(segment => L.GeoJSON.coordsToLatLngs(segment.coords)).flat();
         //L.polyline(coordinates, {color: 'green'}).addTo(map);
         return {
-          name: 'Foo',
-          summary: {totalTime: 1337, totalDistance: 42},
+          name: route.name,
+          summary: {totalTime: route.duration, totalDistance: route.length},
           coordinates: coordinates,
           segments: route.segments,
           inputWaypoints: waypoints,
