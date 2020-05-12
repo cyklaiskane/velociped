@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import L from 'leaflet';
 import 'leaflet-routing-machine';
+import 'leaflet-control-geocoder';
 import './style.css';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
@@ -110,6 +111,7 @@ var routing = new L.Routing.control({
     console.log(route.segments);
     return new Veloline(route, options);
   },
+  geocoder: L.Control.Geocoder.nominatim(),
 }).addTo(map);
 
 var dark = L.tileLayer('https://api.maptiler.com/maps/darkmatter/{z}/{x}/{y}.png?key=jrAoRNrX6nfYt6nZNnnW', {

@@ -13,6 +13,7 @@
   "license": "GPLv3",
   "dependencies": {
     "leaflet": "^1.6.0",
+    "leaflet-control-geocoder": "^1.13.0",
     "leaflet-routing-machine": "^3.2.12",
     "lodash": "^4.17.15"
   },
