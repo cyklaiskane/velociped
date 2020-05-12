@@ -75,16 +75,16 @@ const Veloline = L.Routing.Line.extend({
     L.Routing.Line.prototype.initialize.call(this, route, options);
 
     const styles = {
-      C1: {color: '#173C66', opacity: 1, weight: 3},
-      C2: {color: '#173C66', opacity: 1, weight: 3},
-      C3: {color: '#173C66', opacity: 1, weight: 3},
-      B1: {color: '#425AF3', opacity: 1, weight: 3},
-      B2: {color: '#70A3F3', opacity: 1, weight: 3},
-      B3: {color: '#DD898F', opacity: 1, weight: 3},
-      B4: {color: '#C52217', opacity: 1, weight: 3},
-      B5: {color: '#400000', opacity: 1, weight: 3},
-      G1: {color: '#8A5435', opacity: 1, weight: 3},
-      G2: {color: '#8A5435', opacity: 1, weight: 3},
+      C1: {color: '#5e96a8', opacity: 1, weight: 3},
+      C2: {color: '﻿#C49949', opacity: 1, weight: 3},
+      C3: {color: '#5e96a8', opacity: 1, weight: 3},
+      B1: {color: '#61b9bd', opacity: 1, weight: 3},
+      B2: {color: '#b5dfe1', opacity: 1, weight: 3},
+      B3: {color: '#ff8b9e', opacity: 1, weight: 3},
+      B4: {color: '#a7616d', opacity: 1, weight: 3},
+      B5: {color: '#808080', opacity: 1, weight: 3},
+      G1: {color: '#c4b79f', opacity: 1, weight: 3},
+      G2: {color: '#c4b79f', opacity: 1, weight: 3},
     }
 
     for (const segment of route.segments) {
