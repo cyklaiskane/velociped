@@ -34,23 +34,35 @@ def pairwise(iterable):
     return zip(a, b)
 
 
-async def find_route(db, start, dest):
+def weights(n):
+    names = ['C1', 'C2', 'C3', 'B1', 'B2', 'B3', 'B4', 'B5', 'G1', 'G2']
+    speeds = [18, 15, 18, 18, 18, 18, 18, 1, 15, 13]
+    weights = [
+        [1.0, 1.0, 1.0, 1.1, 1.1, 1.1, 1.1, -1, 1.2, 1.2],
+        [1.0, 1.1, 1.1, 1.2, 1.3, 1.5, 1.9, -1, 1.4, 1.6],
+        [1.0, 1.1, 1.1, 1.2, 1.3, 8.0, 10., -1, 1.4, 1.6]
+    ]
+
+    tmp = [(n, w * 3.6 / s, w) for n, w, s in zip(names, weights[n], speeds)]
+    return tmp
+
+
+async def find_route(db, start, dest, profile=1):
     waypoints_sql = []
     for i, waypoint in enumerate([start, dest]):
         waypoints_sql.append(f'({i}, ST_Transform(ST_SetSRID(ST_MakePoint('
                              f'{waypoint.lng}, {waypoint.lat})'
                              ', 4326), 3006))')
 
+    weights_sql = ', '.join([f"('{n}', {w}, {p})" for n, w, p in weights(profile)])
+
     inner_sql = f'''
         WITH waypoints(id, geom) AS (
             VALUES {','.join(waypoints_sql)}
         ), path(geom) AS (
             SELECT ST_MakeLine(geom) FROM waypoints
-        ), weights(ts_klass, weight) AS (
-            VALUES
-                ('C1', 1), ('C2', 1.1), ('C3', 1.1),
-                ('B1', 1.2), ('B2', 1.3), ('B3', 1.5), ('B4', 1.9), ('B5', -1),
-                ('G1', 1.4), ('G2', 1.6)
+        ), weights(ts_klass, weight, penalty) AS (
+            VALUES {weights_sql}
         )
         SELECT
             objectid as id,
@@ -82,6 +94,8 @@ async def find_route(db, start, dest):
                 ORDER BY ST_Distance(roads.geom, point.geom) ASC
                 LIMIT 1
             ) nearest
+        ), weights(ts_klass, weight, penalty) AS (
+            VALUES {weights_sql}
         )
         SELECT
             roads.objectid,
@@ -89,6 +103,9 @@ async def find_route(db, start, dest):
             roads.from_vertex,
             roads.to_vertex,
             roads.shape_length,
+            roads.namn_130 as name,
+            route.cost / weights.weight as length,
+            route.cost / weights.penalty as duration,
             vias.waypoint_id,
             vias.fraction,
             CASE WHEN vias.fraction IS NULL THEN 'full length' ELSE 'snip snip' END as bar,
@@ -125,6 +142,7 @@ async def find_route(db, start, dest):
             'SELECT * FROM cyklaiskane_restrictions'
         ) route
         JOIN cyklaiskane roads ON route.id2 = roads.objectid
+        JOIN weights USING (ts_klass)
         LEFT OUTER JOIN vias USING (objectid)
         ORDER BY route.seq
     '''
