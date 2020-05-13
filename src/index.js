@@ -88,14 +88,14 @@ const Veloline = L.Routing.Line.extend({
     }
 
     for (const segment of route.segments) {
-      console.log(segment);
+      //console.log(segment, styles[segment.ts_klass]);
       let pl = L.polyline(L.GeoJSON.coordsToLatLngs(segment.coords), styles[segment.ts_klass]);
       this.addLayer(pl);
     }
   },
 
   _addSegment: function(coords, styles, mouselistener) {
-    console.log(styles);
+    //console.log(styles);
     L.Routing.Line.prototype._addSegment.call(this, coords, styles, mouselistener);
   },
 });
@@ -107,8 +107,8 @@ var routing = new L.Routing.control({
   ],
   router: new Velorouter({foo: 'bar'}),
   routeLine: function(route, options) {
-    console.log(options);
-    console.log(route.segments);
+    //console.log(options);
+    //console.log(route.segments);
     return new Veloline(route, options);
   },
   geocoder: L.Control.Geocoder.nominatim(),
