@@ -75,9 +75,9 @@ const Veloline = L.Routing.Line.extend({
     L.Routing.Line.prototype.initialize.call(this, route, options);
 
     const styles = {
-      C1: {color: '#5e96a8', opacity: 1, weight: 3},
-      C2: {color: '﻿#C49949', opacity: 1, weight: 3},
-      C3: {color: '#5e96a8', opacity: 1, weight: 3},
+      C1: {color: '#5e96a8', opacity: 1, weight: 4},
+      C2: {color: '#C49949', opacity: 1, weight: 4},
+      C3: {color: '#5e96a8', opacity: 1, weight: 4},
       B1: {color: '#61b9bd', opacity: 1, weight: 3},
       B2: {color: '#b5dfe1', opacity: 1, weight: 3},
       B3: {color: '#ff8b9e', opacity: 1, weight: 3},
