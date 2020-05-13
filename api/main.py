@@ -1,6 +1,7 @@
 import logging
 import timeit
 import shapely.wkt
+import asyncio
 from typing import List, Dict, Tuple
 from fastapi import FastAPI, Request, Depends, Response
 from fastapi.staticfiles import StaticFiles
@@ -86,37 +87,57 @@ async def point(latlng: LatLng, db=Depends(get_db)):
 
 
 @app.post('/api/route')
-async def route(query: RouteQuery, db=Depends(get_db)):
+async def route(query: RouteQuery, request: Request):
     debug(query)
     routes = []
 
-    for name, i in [('Lämpligast', 1), ('Snabbast', 0), ('Säkrast', 2)]:
-        route = Route(name=name)
-
-        for start, dest in pairwise(query.waypoints):
-            debug(start, dest)
-
-            result = await find_route(db, start, dest, profile=i)
-
-            for row in result:
-                if row['waypoint_id'] is not None:
-                    debug(row)
-                segment = Segment(coords=row['geom'].coords[:],
-                                  name=row['name'],
-                                  ts_klass=row['ts_klass'],
-                                  length=row['length'],
-                                  duration=row['duration'])
-                route.length += segment.length
-                route.duration += segment.duration
-                route.segments.append(segment)
-        #debug(routes)
+    results = await asyncio.gather(*[do_route(request.app.db, query.waypoints, name, profile) for name, profile in [('Lämpligast', 1), ('Snabbast', 0), ('Säkrast', 2)]])
+    for route in results:
         routes.append(route)
     return routes
+
+async def do_route(db, waypoints, name, profile):
+    route = Route(name=name)
+
+    results = await asyncio.gather(*[find_route(db, start, dest, profile=profile) for start, dest in pairwise(waypoints)])
+
+    for result in results:
+        for row in result:
+            if row['waypoint_id'] is not None:
+                debug(row)
+            segment = Segment(coords=row['geom'].coords[:],
+                              name=row['name'],
+                              ts_klass=row['ts_klass'],
+                              length=row['length'],
+                              duration=row['duration'])
+            route.length += segment.length
+            route.duration += segment.duration
+            route.segments.append(segment)
+
+    return route
 
 
 @app.on_event('startup')
 async def startup():
-    app.db = await create_pool(dsn=POSTGRES_DSN, min_size=5, max_size=10)
+    async def init_con(con):
+        def encode_geometry(geometry):
+            if not hasattr(geometry, '__geo_interface'):
+                raise TypeError(f'{geometry} does not conform to the '
+                                'geo intergace')
+            shape = shapely.geometry.asShape(geometry)
+            return shapely.wkb.dumps(shape)
+
+        def decode_geometry(wkb):
+            return shapely.wkb.loads(wkb)
+
+        await con.set_type_codec(
+            'geometry',
+            encoder=encode_geometry,
+            decoder=decode_geometry,
+            format='binary'
+        )
+
+    app.db = await create_pool(dsn=POSTGRES_DSN, min_size=10, max_size=20, init=init_con)
 
 
 @app.on_event('shutdown')
