@@ -43,8 +43,11 @@ async def find_route(db, start, dest, profile=1):
     inner_sql = f'''
         WITH waypoints(id, geom) AS (
             VALUES {','.join(waypoints_sql)}
-        ), path(geom) AS (
-            SELECT ST_MakeLine(geom) FROM waypoints
+        ), path AS (
+            SELECT
+                ST_MakeLine(geom) AS geom,
+                least(greatest(ST_Length(ST_MakeLine(geom)) * 0.2, 1000), 5000) AS limit
+            FROM waypoints
         ), weights(ts_klass, weight, penalty) AS (
             VALUES {weights_sql}
         )
@@ -54,7 +57,7 @@ async def find_route(db, start, dest, profile=1):
             to_vertex as target,
             shape_length * COALESCE(weight, -1) as cost
         FROM cyklaiskane roads
-        JOIN path ON ST_DWithin(roads.geom, path.geom, 5000)
+        JOIN path ON ST_DWithin(roads.geom, path.geom, path.limit)
         JOIN weights USING (ts_klass)
     '''
 
