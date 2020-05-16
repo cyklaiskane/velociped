@@ -1,7 +1,4 @@
 import logging
-import shapely.geometry
-import shapely.wkb
-from devtools import debug
 from itertools import tee
 
 from fastapi import Request
@@ -19,12 +16,12 @@ def pairwise(iterable):
 
 
 def weights(n):
-    names = ['C1', 'C2', 'C3', 'B1', 'B2', 'B3', 'B4', 'B5', 'G1', 'G2']
+    names = ["C1", "C2", "C3", "B1", "B2", "B3", "B4", "B5", "G1", "G2"]
     speeds = [18, 15, 18, 18, 18, 18, 18, 1, 15, 13]
     weights = [
         [1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.1, -1, 1.2, 1.2],
         [1.0, 1.1, 1.1, 1.2, 1.3, 1.5, 1.9, -1, 1.4, 1.6],
-        [1.0, 1.1, 1.1, 1.2, 1.3, 8.0, 10., -1, 1.4, 1.6]
+        [1.0, 1.1, 1.1, 1.2, 1.3, 8.0, 10.0, -1, 1.4, 1.6],
     ]
 
     tmp = [(n, w * 3.6 / s, w) for n, w, s in zip(names, weights[n], speeds)]
@@ -34,13 +31,15 @@ def weights(n):
 async def find_route(db, start, dest, profile=1):
     waypoints_sql = []
     for i, waypoint in enumerate([start, dest]):
-        waypoints_sql.append(f'({i}, ST_Transform(ST_SetSRID(ST_MakePoint('
-                             f'{waypoint.lng}, {waypoint.lat})'
-                             ', 4326), 3006))')
+        waypoints_sql.append(
+            f"({i}, ST_Transform(ST_SetSRID(ST_MakePoint("
+            f"{waypoint.lng}, {waypoint.lat})"
+            ", 4326), 3006))"
+        )
 
-    weights_sql = ', '.join([f"('{n}', {w}, {p})" for n, w, p in weights(profile)])
+    weights_sql = ", ".join([f"('{n}', {w}, {p})" for n, w, p in weights(profile)])
 
-    inner_sql = f'''
+    inner_sql = f"""
         WITH waypoints(id, geom) AS (
             VALUES {','.join(waypoints_sql)}
         ), path AS (
@@ -60,9 +59,9 @@ async def find_route(db, start, dest, profile=1):
         FROM cyklaiskane roads
         JOIN path ON ST_DWithin(roads.geom, path.geom, path.limit)
         JOIN weights USING (ts_klass)
-    '''
+    """
 
-    sql = f'''
+    sql = f"""
         WITH waypoints(id, geom) AS (
             VALUES {','.join(waypoints_sql)}
         ), weights(ts_klass, weight, penalty) AS (
@@ -136,7 +135,7 @@ async def find_route(db, start, dest, profile=1):
         JOIN weights USING (ts_klass)
         LEFT OUTER JOIN vias USING (objectid)
         ORDER BY route.seq
-    '''
+    """
     logging.debug(sql)
 
     return await db.fetch(sql)
