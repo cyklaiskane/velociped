@@ -212,7 +212,8 @@ async def startup():
             format='binary'
         )
 
-    app.db = await create_pool(dsn=POSTGRES_DSN, min_size=10, max_size=20, init=init_con)
+    app.db = await create_pool(dsn=str(POSTGRES_DSN), min_size=10, max_size=20,
+                               init=init_con)
 
 
 @app.on_event('shutdown')
