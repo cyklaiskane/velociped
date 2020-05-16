@@ -33,7 +33,7 @@ async def fetch_token(name: str, request: Request):
     return token
 
 
-async def update_token(name, token, refresh_token=None, access_token=None, expires_at=time.time() - 1):
+async def update_token(name, token, refresh_token=None, access_token=None, expires_at=None):
     debug(name, token, refresh_token, access_token)
     for i, _token in enumerate(tokens):
         if _token.name == name and _token.access_token == access_token:
