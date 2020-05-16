@@ -1,21 +1,19 @@
 import asyncio
 import logging
-from typing import List, Tuple
+from typing import Any, List
 
-import shapely.geometry
-import shapely.wkb
-from asyncpg import create_pool
 from authlib.integrations.starlette_client import OAuth
 from devtools import debug
-from fastapi import Depends, FastAPI, Request, Response
+from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
-from api.config import LM_CLIENT_ID, LM_CLIENT_SECRET, LM_TOKEN_URL, POSTGRES_DSN
+from api.config import CORS_ORIGINS, LM_CLIENT_ID, LM_CLIENT_SECRET, LM_TOKEN_URL
+from api.database import db
+from api.schemas import LatLng, Route, RouteQuery, Segment
 from api.security import fetch_token, update_token
-from api.utils import find_route, get_db, pairwise
+from api.utils import find_route, pairwise
 
 app = FastAPI()
 
@@ -37,75 +35,48 @@ oauth.register(
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-CORS_ORIGINS = "*"
 origins = []
-if CORS_ORIGINS:
-    origins_raw = CORS_ORIGINS.split(",")
-    for origin in origins_raw:
-        use_origin = origin.strip()
-        origins.append(use_origin)
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=origins,
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    ),
+for origin in CORS_ORIGINS:
+    use_origin = origin.strip()
+    origins.append(use_origin)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 templates = Jinja2Templates(directory="templates")
 
 
 @app.get("/")
-async def index(request: Request):
+async def index(request: Request) -> Any:
     return templates.TemplateResponse("index.html", {"request": request})
 
 
 @app.get("/foo")
-async def foo(request: Request):
+async def foo(request: Request) -> None:
     logging.debug(request.headers)
 
 
 @app.get("/api/address/{text}")
-async def address_search(text: str, request: Request):
+async def address_search(text: str, request: Request) -> None:
     lm = oauth.lm
     await lm.get("http://localhost:8000/foo", request=request)
 
 
 @app.get("/items")
-async def get_items(db=Depends(get_db)):
-    logging.debug(await db.fetch("SELECT * FROM cyklaiskane LIMIT 10"))
-
-
-class LatLng(BaseModel):
-    lat: float
-    lng: float
-
-    def to_xy(self):
-        return [self.lng, self.lat]
-
-
-class RouteQuery(BaseModel):
-    waypoints: List[LatLng]
-
-
-class Segment(BaseModel):
-    coords: List[Tuple[float, float]]
-    name: str = None
-    ts_klass: str
-    length: float
-    duration: float
-
-
-class Route(BaseModel):
-    name: str = ""
-    length: float = 0.0
-    duration: float = 0.0
-    segments: List[Segment] = []
+async def get_items() -> List:
+    items = await db.fetch_all("SELECT * FROM cyklaiskane LIMIT 10")
+    for item in items:
+        debug(item)
+    return items
 
 
 @app.head("/tiles.json")
 @app.get("/tiles.json")
-def tilejson():
+def tilejson() -> dict:
     return {
         "tilejson": "2.2.0",
         "name": "Cyklaiskåne",
@@ -115,7 +86,7 @@ def tilejson():
 
 
 @app.get("/tiles/{z}/{x}/{y}.pbf")
-async def tile(z: int, x: int, y: int, db=Depends(get_db)):
+async def tile(z: int, x: int, y: int) -> Response:
     resolution = 40075016.68557849 / (256 * 2 ** z)
     logging.debug(resolution)
     sql = f"""
@@ -151,38 +122,38 @@ async def tile(z: int, x: int, y: int, db=Depends(get_db)):
         SELECT ST_AsMVT(mvtgeom.*, 'roads', 4096, 'geom') AS tile FROM mvtgeom
     """
 
-    tile = await db.fetchval(sql)
+    tile = await db.fetch_val(sql, column="tile")
 
     return Response(content=tile, media_type="application/x-protobuf")
 
 
 @app.post("/api/point")
-async def point(latlng: LatLng, db=Depends(get_db)):
+async def point(latlng: LatLng) -> List:
     logging.debug(latlng)
-    result = await db.fetch(
+    result = await db.fetch_all(
         """
         SELECT ST_AsGeoJSON(ST_Transform(geom, 4326))
         FROM cyklaiskane
         WHERE ST_DWithin(
-            ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 3006),
+            ST_Transform(ST_SetSRID(ST_MakePoint(:x, :y), 4326), 3006),
             geom,
             100
         )
     """,
-        *latlng.to_xy(),
+        {"x": latlng.lng, "y": latlng.lat},
     )
     logging.debug(result)
     return result
 
 
 @app.post("/api/route")
-async def route(query: RouteQuery, request: Request):
+async def route(query: RouteQuery, request: Request) -> List:
     debug(query)
     routes = []
 
     results = await asyncio.gather(
         *[
-            do_route(request.app.db, query.waypoints, name, profile)
+            do_route(query.waypoints, name, profile)
             for name, profile in [("Lämpligast", 1), ("Snabbast", 0), ("Säkrast", 2)]
         ]
     )
@@ -191,12 +162,12 @@ async def route(query: RouteQuery, request: Request):
     return routes
 
 
-async def do_route(db, waypoints, name, profile):
+async def do_route(waypoints: List, name: str, profile: int) -> Route:
     route = Route(name=name)
 
     results = await asyncio.gather(
         *[
-            find_route(db, start, dest, profile=profile)
+            find_route(start, dest, profile=profile)
             for start, dest in pairwise(waypoints)
         ]
     )
@@ -220,35 +191,16 @@ async def do_route(db, waypoints, name, profile):
 
 
 @app.on_event("startup")
-async def startup():
-    async def init_con(con):
-        def encode_geometry(geometry):
-            if not hasattr(geometry, "__geo_interface"):
-                raise TypeError(f"{geometry} does not conform to the geo interface")
-            shape = shapely.geometry.asShape(geometry)
-            return shapely.wkb.dumps(shape)
-
-        def decode_geometry(wkb):
-            return shapely.wkb.loads(wkb)
-
-        await con.set_type_codec(
-            "geometry",
-            encoder=encode_geometry,
-            decoder=decode_geometry,
-            format="binary",
-        )
-
-    app.db = await create_pool(
-        dsn=str(POSTGRES_DSN), min_size=10, max_size=20, init=init_con
-    )
+async def startup() -> None:
+    await db.connect()
 
 
 @app.on_event("shutdown")
-async def shutdown():
-    await app.db.close()
+async def shutdown() -> None:
+    await db.disconnect()
 
 
-def main():
+def main() -> None:
     import uvicorn
 
     uvicorn.run("api.main:app", host="0.0.0.0", reload=True, log_level="debug")

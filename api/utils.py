@@ -1,21 +1,18 @@
 import logging
 from itertools import tee
+from typing import Iterable
 
-from fastapi import Request
-
-
-async def get_db(request: Request):
-    async with request.app.db.acquire() as con:
-        yield con
+from api.database import db
+from api.schemas import LatLng
 
 
-def pairwise(iterable):
+def pairwise(iterable: Iterable) -> Iterable:
     a, b = tee(iterable)
     next(b, None)
     return zip(a, b)
 
 
-def weights(n):
+def weights(n: int) -> list:
     names = ["C1", "C2", "C3", "B1", "B2", "B3", "B4", "B5", "G1", "G2"]
     speeds = [18, 15, 18, 18, 18, 18, 18, 1, 15, 13]
     weights = [
@@ -28,7 +25,7 @@ def weights(n):
     return tmp
 
 
-async def find_route(db, start, dest, profile=1):
+async def find_route(start: LatLng, dest: LatLng, profile: int = 1) -> Iterable:
     waypoints_sql = []
     for i, waypoint in enumerate([start, dest]):
         waypoints_sql.append(
@@ -153,4 +150,4 @@ async def find_route(db, start, dest, profile=1):
     """
     logging.debug(sql)
 
-    return await db.fetch(sql)
+    return await db.fetch_all(sql)
