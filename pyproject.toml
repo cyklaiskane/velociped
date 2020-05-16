@@ -8,11 +8,14 @@ authors = ["Joakim Fors <joakim.fors@trivector.se>"]
 python = "^3.7"
 fastapi = "^0.54.1"
 asyncpg = "^0.20.1"
-httpx = "^0.12.1"
+httpx = "0.12.0"
 uvicorn = "^0.11.3"
 aiofiles = "^0.5.0"
 jinja2 = "^2.11.2"
 shapely = "^1.7.0"
+authlib = "^0.14.2"
+databases = {extras = ["postgresql"], version = "^0.3.2"}
+itsdangerous = "^1.1.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.4.1"
