@@ -1,41 +1,21 @@
 import asyncio
 import logging
-from typing import (
-    List,
-    Tuple,
-)
+from typing import List, Tuple
 
 import shapely.geometry
 import shapely.wkb
 from asyncpg import create_pool
 from authlib.integrations.starlette_client import OAuth
 from devtools import debug
-from fastapi import (
-    Depends,
-    FastAPI,
-    Request,
-    Response,
-)
+from fastapi import Depends, FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 
-from api.config import (
-    LM_CLIENT_ID,
-    LM_CLIENT_SECRET,
-    LM_TOKEN_URL,
-    POSTGRES_DSN,
-)
-from api.security import (
-    fetch_token,
-    update_token,
-)
-from api.utils import (
-    find_route,
-    get_db,
-    pairwise,
-)
+from api.config import LM_CLIENT_ID, LM_CLIENT_SECRET, LM_TOKEN_URL, POSTGRES_DSN
+from api.security import fetch_token, update_token
+from api.utils import find_route, get_db, pairwise
 
 app = FastAPI()
 
@@ -140,12 +120,21 @@ async def tile(z: int, x: int, y: int, db=Depends(get_db)):
     logging.debug(resolution)
     sql = f"""
         WITH meta AS (
-            SELECT ST_TileEnvelope({z}, {x}, {y}) AS bounds, ST_SRID(geom) AS srid FROM cyklaiskane LIMIT 1
+            SELECT
+                ST_TileEnvelope({z}, {x}, {y}) AS bounds,
+                ST_SRID(geom) AS srid
+            FROM cyklaiskane LIMIT 1
         ), mvtgeom AS (
             SELECT * FROM meta,
             LATERAL (
                 SELECT
-                    ST_AsMVTGeom(ST_Transform(ST_Simplify(geom, {resolution}, TRUE), 3857), meta.bounds, 4096, 256, true) AS geom,
+                    ST_AsMVTGeom(
+                        ST_Transform(ST_Simplify(geom, {resolution}, TRUE), 3857),
+                        meta.bounds,
+                        4096,
+                        256,
+                        true
+                    ) AS geom,
                     roads.ts_klass,
                     roads.klass_181
                 FROM cyklaiskane roads
@@ -174,7 +163,11 @@ async def point(latlng: LatLng, db=Depends(get_db)):
         """
         SELECT ST_AsGeoJSON(ST_Transform(geom, 4326))
         FROM cyklaiskane
-        WHERE ST_DWithin(ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 3006), geom, 100)
+        WHERE ST_DWithin(
+            ST_Transform(ST_SetSRID(ST_MakePoint($1, $2), 4326), 3006),
+            geom,
+            100
+        )
     """,
         *latlng.to_xy(),
     )

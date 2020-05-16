@@ -54,8 +54,15 @@ async def find_route(db, start, dest, profile=1):
             objectid as id,
             from_vertex as source,
             to_vertex as target,
-            CASE WHEN weight IS NOT NULL AND f_forbjuden_fardriktning IS NULL THEN shape_length * weight ELSE -1 END as cost,
-            CASE WHEN weight IS NOT NULL AND b_forbjuden_fardriktning IS NULL THEN shape_length * weight ELSE -1 END as reverse_cost
+            CASE
+                WHEN weight IS NOT NULL AND f_forbjuden_fardriktning IS NULL
+                THEN shape_length * weight
+                ELSE -1
+            END as cost,
+            CASE WHEN weight IS NOT NULL AND b_forbjuden_fardriktning IS NULL
+                THEN shape_length * weight
+                ELSE -1
+            END as reverse_cost
         FROM cyklaiskane roads
         JOIN path ON ST_DWithin(roads.geom, path.geom, path.limit)
         JOIN weights USING (ts_klass)
@@ -98,24 +105,32 @@ async def find_route(db, start, dest, profile=1):
             route.cost / weights.penalty as duration,
             vias.waypoint_id,
             vias.fraction,
-            CASE WHEN vias.fraction IS NULL THEN 'full length' ELSE 'snip snip' END as bar,
+            CASE WHEN vias.fraction IS NULL
+                THEN 'full length'
+                ELSE 'snip snip'
+            END as bar,
             route.*,
             lead(route.id1) over () as route_to_vertex,
-            route.id1 != roads.from_vertex AND coalesce(lead(route.id1) over (), -1) != roads.to_vertex as reverse,
-            CASE WHEN route.id1 = roads.from_vertex OR coalesce(lead(route.id1) over (), -1) = roads.to_vertex THEN 'go ahead!' ELSE 'reverse!' END as foo,
             ST_Transform(
-                CASE WHEN route.id1 = roads.from_vertex OR coalesce(lead(route.id1) over (), -1) = roads.to_vertex THEN
-                    CASE
-                    WHEN vias.fraction IS NULL THEN roads.geom
-                    WHEN route.id1 = -1 THEN ST_LineSubstring(roads.geom, vias.fraction, 1)
-                    ELSE ST_LineSubstring(roads.geom, 0, vias.fraction)
-                    END
+                CASE
+                    WHEN route.id1 = roads.from_vertex
+                         OR coalesce(lead(route.id1) OVER (), -1) = roads.to_vertex
+                    THEN
+                        CASE
+                            WHEN vias.fraction IS NULL
+                            THEN roads.geom
+                            WHEN route.id1 = -1
+                            THEN ST_LineSubstring(roads.geom, vias.fraction, 1)
+                            ELSE ST_LineSubstring(roads.geom, 0, vias.fraction)
+                        END
                 ELSE
                     ST_Reverse(
                         CASE
-                        WHEN vias.fraction IS NULL THEN roads.geom
-                        WHEN route.id1 = -1 THEN ST_LineSubstring(roads.geom, 0, vias.fraction)
-                        ELSE ST_LineSubstring(roads.geom, vias.fraction, 1)
+                            WHEN vias.fraction IS NULL
+                            THEN roads.geom
+                            WHEN route.id1 = -1
+                            THEN ST_LineSubstring(roads.geom, 0, vias.fraction)
+                            ELSE ST_LineSubstring(roads.geom, vias.fraction, 1)
                         END
                     )
                 END,
