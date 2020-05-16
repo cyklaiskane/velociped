@@ -104,6 +104,51 @@ class Route(BaseModel):
     segments: List[Segment] = []
 
 
+@app.head('/tiles.json')
+@app.get('/tiles.json')
+def tilejson():
+    return {
+        'tilejson': '2.2.0',
+        'name': 'Cyklaiskåne',
+        'description': 'Foobar',
+        'tiles': [
+            'http://localhost:8000/tiles/{z}/{x}/{y}.pbf'
+        ]
+    }
+
+@app.get('/tiles/{z}/{x}/{y}.pbf')
+async def tile(z: int, x: int, y: int, db=Depends(get_db)):
+    resolution = 40075016.68557849 / (256 * 2 ** z)
+    logging.debug(resolution)
+    sql = f'''
+        WITH meta AS (
+            SELECT ST_TileEnvelope({z}, {x}, {y}) AS bounds, ST_SRID(geom) AS srid FROM cyklaiskane LIMIT 1
+        ), mvtgeom AS (
+            SELECT * FROM meta,
+            LATERAL (
+                SELECT
+                    ST_AsMVTGeom(ST_Transform(ST_Simplify(geom, {resolution}, TRUE), 3857), meta.bounds, 4096, 256, true) AS geom,
+                    roads.ts_klass,
+                    roads.klass_181
+                FROM cyklaiskane roads
+                WHERE
+                    ST_Transform(meta.bounds, meta.srid) && roads.geom
+                    AND (
+                        ({z} > 10 AND ts_klass LIKE 'C%')
+                        OR ({z} > 11 AND ts_klass LIKE 'G%')
+                        OR (ts_klass LIKE 'B%')
+                    )
+            ) _ WHERE geom IS NOT NULL
+
+        )
+        SELECT ST_AsMVT(mvtgeom.*, 'roads', 4096, 'geom') AS tile FROM mvtgeom
+    '''
+
+    tile = await db.fetchval(sql)
+
+    return Response(content=tile, media_type='application/x-protobuf')
+
+
 @app.post('/api/point')
 async def point(latlng: LatLng, db=Depends(get_db)):
     logging.debug(latlng)
