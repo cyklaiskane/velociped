@@ -3,19 +3,38 @@ import timeit
 import shapely.wkt
 import asyncio
 from typing import List, Dict, Tuple
+from authlib.integrations.starlette_client import OAuth
 from fastapi import FastAPI, Request, Depends, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from devtools import debug
 from starlette.middleware.cors import CORSMiddleware
+from starlette.middleware.sessions import SessionMiddleware
 from pydantic import BaseModel
 from asyncpg import create_pool
 
 from api.utils import get_db, pairwise, find_route
-from api.config import POSTGRES_DSN
+from api.config import POSTGRES_DSN, LM_CLIENT_ID, LM_CLIENT_SECRET, LM_TOKEN_URL
+from api.security import fetch_token, update_token
 
 
 app = FastAPI()
+
+oauth = OAuth(fetch_token=fetch_token, update_token=update_token)
+
+oauth.register(
+    'lm',
+    client_id=str(LM_CLIENT_ID),
+    client_secret=str(LM_CLIENT_SECRET),
+    access_token_url=LM_TOKEN_URL,
+    client_kwargs={'grant_type': 'client_credentials'},
+    api_base_url='http://localhost:8000/api',
+)
+
+#app.add_middleware(
+#    SessionMiddleware,
+#    secret_key='should-be-random'
+#)
 
 app.mount('/static', StaticFiles(directory='static'), name='static')
 
@@ -40,6 +59,17 @@ templates = Jinja2Templates(directory='templates')
 @app.get('/')
 async def index(request: Request):
     return templates.TemplateResponse('index.html', {'request': request})
+
+
+@app.get('/foo')
+async def foo(request: Request):
+    logging.debug(request.headers)
+
+
+@app.get('/api/address/{text}')
+async def address_search(text: str, request: Request):
+    lm = oauth.lm
+    await lm.get('http://localhost:8000/foo', request=request)
 
 
 @app.get('/items')
