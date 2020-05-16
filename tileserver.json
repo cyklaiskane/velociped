@@ -1,0 +1,18 @@
+{
+  "options": {
+    "pbfAlias": "pbf",
+    "serverAllStyles": true,
+    "serveStaticMaps": true
+  },
+  "styles": {
+    "velo": {
+      "style": "style.json",
+      "tilejson": {
+        "type": "overlay",
+        "format": "png",
+        "serve_rendered": true,
+        "serve_data": true
+      }
+    }
+  }
+}
