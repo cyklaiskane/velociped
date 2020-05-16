@@ -128,8 +128,8 @@ async def find_route(db, start, dest, profile=1):
             (SELECT array_agg(fraction) FROM vias)[1],
             (SELECT array_agg(objectid) FROM vias)[2],
             (SELECT array_agg(fraction) FROM vias)[2],
-            FALSE,
-            FALSE,
+            TRUE,
+            TRUE,
             'SELECT * FROM cyklaiskane_restrictions'
         ) route
         JOIN cyklaiskane roads ON route.id2 = roads.objectid
