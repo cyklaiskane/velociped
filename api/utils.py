@@ -55,7 +55,8 @@ async def find_route(db, start, dest, profile=1):
             objectid as id,
             from_vertex as source,
             to_vertex as target,
-            shape_length * COALESCE(weight, -1) as cost
+            CASE WHEN weight IS NOT NULL AND f_forbjuden_fardriktning IS NULL THEN shape_length * weight ELSE -1 END as cost,
+            CASE WHEN weight IS NOT NULL AND b_forbjuden_fardriktning IS NULL THEN shape_length * weight ELSE -1 END as reverse_cost
         FROM cyklaiskane roads
         JOIN path ON ST_DWithin(roads.geom, path.geom, path.limit)
         JOIN weights USING (ts_klass)
