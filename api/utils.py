@@ -65,6 +65,8 @@ async def find_route(db, start, dest, profile=1):
     sql = f'''
         WITH waypoints(id, geom) AS (
             VALUES {','.join(waypoints_sql)}
+        ), weights(ts_klass, weight, penalty) AS (
+            VALUES {weights_sql}
         ), vias AS (
             SELECT
                 point.id waypoint_id,
@@ -78,13 +80,13 @@ async def find_route(db, start, dest, profile=1):
                 FROM (
                   SELECT *
                   FROM cyklaiskane
+                  JOIN weights USING (ts_klass)
+                  WHERE weights.weight > 0
                   ORDER BY geom <-> point.geom ASC LIMIT 10
                 ) roads
                 ORDER BY ST_Distance(roads.geom, point.geom) ASC
                 LIMIT 1
             ) nearest
-        ), weights(ts_klass, weight, penalty) AS (
-            VALUES {weights_sql}
         )
         SELECT
             roads.objectid,
