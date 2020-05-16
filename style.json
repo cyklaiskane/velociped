@@ -1,0 +1,43 @@
+{
+  "version": 8,
+  "name": "Velo roads",
+  "sources": {
+    "roads": {
+      "type": "vector",
+      "url": "http://localhost:8000/tiles.json"
+    }
+  },
+  "layers": [
+    {
+      "id": "roads",
+      "source": "roads",
+      "source-layer": "roads",
+      "type": "line",
+      "paint": {
+        "line-blur": 1,
+        "line-width": [
+          "interpolate",
+            ["cubic-bezier", 0.3, 0.2, 0.5, 1],
+            ["zoom"],
+            10, ["match", ["get", "ts_klass"], ["G1", "G2"], 0, 0.05],
+            18, ["match", ["get", "ts_klass"], ["G1", "G2"], 2, 4]
+        ],
+        "line-color": [
+          "match",
+          ["get", "ts_klass"],
+          "C1", "#5e96a8",
+          "C2", "#C49949",
+          "C3", "#5e96a8",
+          "B1", "#61b9bd",
+          "B2", "#b5dfe1",
+          "B3", "#ff8b9e",
+          "B4", "#a7616d",
+          "B5", "#808080",
+          "G1", "#c4b79f",
+          "G2", "#c4b79f",
+          "#606060"
+        ]
+      }
+    }
+  ]
+}

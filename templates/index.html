@@ -1,48 +1,9 @@
 <!DOCTYPE html>
-<html lang="sv" dir="ltr">
-<head>
-  <meta charset="utf-8">
-  <title>Velociped</title>
-  <link rel="stylesheet" href="/static/leaflet.css">
-  <script src="/static/leaflet.js" charset="utf-8"></script>
-  <style media="screen">
-    html, body {
-      margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    #map {
-      width: 100%;
-      height: 100%;
-    }
-  </style>
-</head>
-<body>
-  <div id="map"></div>
-  <script type="text/javascript">
-      var map = L.map('map').setView(/*[56, 13]*/ [55.665193184436035, 13.355383872985841], 14);
-      var dark = L.tileLayer('https://api.maptiler.com/maps/darkmatter/{z}/{x}/{y}.png?key=jrAoRNrX6nfYt6nZNnnW', {
-        attribution: '© OpenStreetMap contributors'
-      }).addTo(map);
-      var route = null;
-      map.on('click', async (ev) => {
-        console.log(ev);
-        if (route)
-          map.removeLayer(route);
-        query = {
-          start: {lat: 55.65760706736028, lng: 13.357245326042177},
-          end: ev.latlng,
-        }
-        const response = await fetch('/api/route', {
-          method: 'POST',
-          body: JSON.stringify(query),
-        });
-        const data = await response.json();
-        console.log(data);
-        route = L.geoJSON(data).addTo(map);
-      });
-  </script>
-</body>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Cykla i Skåne</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1"></head>
+  <body>
+  <script src="static/bundle.js"></script></body>
 </html>
