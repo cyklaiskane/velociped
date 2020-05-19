@@ -72,24 +72,28 @@ async def find_route(start: LatLng, dest: LatLng, profile: int = 1) -> Iterable:
             VALUES {weights_sql}
         ), vias AS (
             SELECT
-                point.id waypoint_id,
+                point.id,
                 nearest.objectid,
                 nearest.fraction,
                 ST_LineInterpolatePoint(nearest.geom, nearest.fraction) geom
             FROM waypoints point,
             LATERAL (
                 SELECT
-                  ST_LineLocatePoint(roads.geom, point.geom) fraction, roads.*
+                    ST_LineLocatePoint(roads.geom, point.geom) fraction, roads.*
                 FROM (
-                  SELECT *
-                  FROM cyklaiskane
-                  JOIN weights USING (ts_klass)
-                  WHERE weights.weight > 0
-                  ORDER BY geom <-> point.geom ASC LIMIT 10
+                    SELECT *
+                    FROM cyklaiskane
+                    JOIN weights USING (ts_klass)
+                    WHERE weights.weight > 0
+                    ORDER BY geom <-> point.geom ASC LIMIT 10
                 ) roads
                 ORDER BY ST_Distance(roads.geom, point.geom) ASC
                 LIMIT 1
             ) nearest
+        ), from_point AS (
+            SELECT * FROM vias WHERE id = 0 LIMIT 1
+        ), to_point AS (
+            SELECT * FROM vias WHERE id = 1 LIMIT 1
         ), parts AS (
             SELECT
                 roads.objectid,
@@ -100,68 +104,69 @@ async def find_route(start: LatLng, dest: LatLng, profile: int = 1) -> Iterable:
                 roads.namn_130 as name,
                 route.cost / weights.weight as length,
                 route.cost / weights.penalty as duration,
-                vias.waypoint_id,
-                vias.fraction,
-                CASE WHEN vias.fraction IS NULL
-                    THEN 'full length'
-                    ELSE 'snip snip'
-                END as bar,
+                from_point.id as from_point_id,
+                from_point.fraction as from_fraction,
+                to_point.id as to_point_id,
+                to_point.fraction as to_fraction,
                 route.*,
                 lead(route.id1) over () as route_to_vertex,
                 (
                     lag(ts_klass) OVER () IS DISTINCT FROM ts_klass
                     OR lag(namn_130) OVER () IS DISTINCT FROM namn_130
                 )::int as part_start,
-                ST_Transform(
-                    CASE
-                        WHEN route.id1 = roads.from_vertex
-                             OR lead(route.id1, 1, -1) OVER () = roads.to_vertex
-                        THEN
-                            CASE
-                                WHEN vias.fraction IS NULL
-                                THEN roads.geom
-                                WHEN route.id1 = -1
-                                THEN ST_LineSubstring(roads.geom, vias.fraction, 1)
-                                ELSE ST_LineSubstring(roads.geom, 0, vias.fraction)
-                            END
-                    ELSE
-                        ST_Reverse(
-                            CASE
-                                WHEN vias.fraction IS NULL
-                                THEN roads.geom
-                                WHEN route.id1 = -1
-                                THEN ST_LineSubstring(roads.geom, 0, vias.fraction)
-                                ELSE ST_LineSubstring(roads.geom, vias.fraction, 1)
-                            END
-                        )
-                    END,
-                    4326
-                ) as geom
+                CASE
+                WHEN route.id1 = roads.from_vertex
+                     OR lead(route.id1, 1, -1) OVER () = roads.to_vertex
+                     OR (from_point.objectid = to_point.objectid
+                         AND from_point.fraction < to_point.fraction)
+                    THEN
+                        CASE
+                            WHEN COALESCE(from_point.fraction, to_point.fraction) IS NULL
+                            THEN roads.geom
+                            ELSE ST_LineSubstring(
+                                roads.geom,
+                                COALESCE(from_point.fraction, 0),
+                                COALESCE(to_point.fraction, 1)
+                            )
+                        END
+                ELSE
+                    ST_Reverse(
+                        CASE
+                            WHEN COALESCE(from_point.fraction, to_point.fraction) IS NULL
+                            THEN roads.geom
+                            ELSE ST_LineSubstring(
+                                roads.geom,
+                                COALESCE(to_point.fraction, 0),
+                                COALESCE(from_point.fraction, 1)
+                            )
+                        END
+                    )
+                END as geom
             FROM pgr_trsp(
                 '{inner_sql.replace("'", "''")}',
-                (SELECT array_agg(objectid) FROM vias)[1],
-                (SELECT array_agg(fraction) FROM vias)[1],
-                (SELECT array_agg(objectid) FROM vias)[2],
-                (SELECT array_agg(fraction) FROM vias)[2],
+                (SELECT objectid FROM from_point),
+                (SELECT fraction FROM from_point),
+                (SELECT objectid FROM to_point),
+                (SELECT fraction FROM to_point),
                 TRUE,
                 TRUE,
                 'SELECT * FROM cyklaiskane_restrictions'
             ) route
             JOIN cyklaiskane roads ON route.id2 = roads.objectid
             JOIN weights USING (ts_klass)
-            LEFT OUTER JOIN vias USING (objectid)
+            LEFT OUTER JOIN from_point USING (objectid)
+            LEFT OUTER JOIN to_point USING (objectid)
             ORDER BY route.seq
         )
         SELECT
-            array_agg(objectid) as ids,
+            array_agg(objectid ORDER BY seq) as ids,
             part,
             ts_klass,
             name,
             SUM(length) as length,
             SUM(duration) as duration,
-            ST_MakeLine(geom ORDER BY seq) as geom
+            ST_Transform(ST_MakeLine(geom ORDER BY seq), 4326) as geom
         FROM (SELECT *, SUM(part_start) OVER (ORDER BY seq) part FROM parts) _
-        WHERE GeometryType(geom) = 'LINESTRING'
         GROUP BY part, ts_klass, name
         ORDER BY part
     '''
