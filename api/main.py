@@ -26,8 +26,13 @@ oauth.register(
     client_id=str(LM_CLIENT_ID),
     client_secret=str(LM_CLIENT_SECRET),
     access_token_url=LM_TOKEN_URL,
-    client_kwargs={"grant_type": "client_credentials"},
-    api_base_url="http://localhost:8000/api",
+    client_kwargs={
+        'grant_type': 'client_credentials',
+        'headers': {
+            'Accept': 'application/json',
+        },
+    },
+    api_base_url=LM_ADDRESS_BASE_URL,
 )
 
 # app.add_middleware(
