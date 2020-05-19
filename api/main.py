@@ -5,6 +5,7 @@ from typing import Any, List
 from authlib.integrations.starlette_client import OAuth
 from devtools import debug
 from fastapi import FastAPI, Request, Response
+from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from pyproj import Transformer
@@ -198,12 +199,16 @@ async def route(query: RouteQuery, request: Request) -> List:
     debug(query)
     routes = []
 
-    results = await asyncio.gather(
-        *[
-            do_route(query.waypoints, name, profile)
-            for name, profile in [('Lämpligast', 1), ('Snabbast', 0), ('Säkrast', 2)]
-        ]
-    )
+    try:
+        results = await asyncio.gather(
+            *[
+                do_route(query.waypoints, name, profile)
+                for name, profile in [('Lämpligast', 1)] # [('Lämpligast', 1), ('Snabbast', 0), ('Säkrast', 2)]
+            ]
+        )
+    except Exception as e:
+        logging.warn(e)
+        return JSONResponse(content={'error': str(e)}, status_code=500)
     for route in results:
         routes.append(route)
     return routes
