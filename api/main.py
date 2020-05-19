@@ -7,6 +7,7 @@ from devtools import debug
 from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from pyproj import Transformer
 from starlette.middleware.cors import CORSMiddleware
 
 from api.config import CORS_ORIGINS, LM_CLIENT_ID, LM_CLIENT_SECRET, LM_TOKEN_URL, LM_ADDRESS_BASE_URL
@@ -67,13 +68,53 @@ async def foo(request: Request) -> None:
     logging.debug(request.headers)
 
 
-@app.get("/api/address/{text}")
-async def address_search(text: str, request: Request) -> None:
-    lm = oauth.lm
-    await lm.get("http://localhost:8000/foo", request=request)
+def parse_result(feature: dict) -> dict:
+    to4326 = Transformer.from_crs('epsg:3006', 'epsg:4326', always_xy=True)
+
+    house = feature['adressplatsattribut']['adressplatsbeteckning']['adressplatsnummer']
+    street = feature['adressomrade']['faststalltNamn']
+    place = feature['adressomrade']['kommundel']['faststalltNamn']
+    muni = feature['adressomrade']['kommundel']['kommun']['kommunnamn']
+    coords = feature['adressplatsattribut']['adressplatspunkt']['coordinates']
+    loc = to4326.transform(*coords)
+
+    return {
+        'name': f'{street} {house}, {place}, {muni}',
+        'lat': loc[1],
+        'lng': loc[0],
+        'feature': feature,
+    }
 
 
-@app.get("/items")
+@app.get('/api/geocoder/search/{text}')
+async def address_search(text: str, request: Request) -> List:
+    r = await oauth.lm.get(f'referens/fritext/{text}', params={'maxHits': 5}, request=request)
+    r.raise_for_status()
+    refs = r.json()
+    ids = [ref['objektidentitet'] for ref in refs]
+    r = await oauth.lm.post('', json=ids, params={'includeData': 'basinformation'}, request=request)
+    r.raise_for_status()
+    result = r.json()
+    debug(result)
+    response = [parse_result(feature['properties']) for feature in result['features']]
+    debug(response)
+    return response
+
+
+@app.get('/api/geocoder/reverse/{lat},{lng}')
+async def reverse(lat: float, lng: float, request: Request):
+    to3006 = Transformer.from_crs('epsg:4326', 'epsg:3006', always_xy=True)
+    e, n = to3006.transform(lng, lat)
+    r = await oauth.lm.get(f'punkt/3006/{n},{e}', params={'includeData': 'basinformation'}, request=request)
+    r.raise_for_status()
+    result = r.json()
+    debug(result)
+    feature = result['features'][0]['properties']
+    response = parse_result(feature)
+    return response
+
+
+@app.get('/items')
 async def get_items() -> List:
     items = await db.fetch_all('SELECT * FROM cyklaiskane LIMIT 10')
     for item in items:
