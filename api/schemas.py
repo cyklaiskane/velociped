@@ -24,7 +24,7 @@ class Segment(BaseModel):
 
 
 class Route(BaseModel):
-    name: str = ""
+    name: str = ''
     length: float = 0.0
     duration: float = 0.0
     segments: List[Segment] = []

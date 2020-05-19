@@ -11,15 +11,15 @@ tokens: List[Token] = []
 
 
 async def fetch_token(name: str, request: Request) -> dict:
-    logging.debug("fetch_token")
+    logging.debug('fetch_token')
     logging.debug(name)
     debug(tokens)
     for token in tokens:
         if token.name == name:
-            return token.dict(exclude={"name"})
-    token = Token(name=name, token_type="Bearer", access_token="cafe", expires_at=1)
+            return token.dict(exclude={'name'})
+    token = Token(name=name, token_type='Bearer', access_token='cafe', expires_at=1)
     debug(token)
-    return token.dict(exclude={"name"})
+    return token.dict(exclude={'name'})
 
 
 async def update_token(

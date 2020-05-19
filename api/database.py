@@ -11,8 +11,8 @@ from api.config import POSTGRES_DSN
 
 async def init_con(con: Connection) -> None:
     def encode_geometry(geometry: Any) -> bytes:
-        if not hasattr(geometry, "__geo_interface"):
-            raise TypeError(f"{geometry} does not conform to the geo interface")
+        if not hasattr(geometry, '__geo_interface'):
+            raise TypeError(f'{geometry} does not conform to the geo interface')
         shape = shapely.geometry.asShape(geometry)
         return shapely.wkb.dumps(shape)
 
@@ -20,7 +20,7 @@ async def init_con(con: Connection) -> None:
         return shapely.wkb.loads(wkb)
 
     await con.set_type_codec(
-        "geometry", encoder=encode_geometry, decoder=decode_geometry, format="binary",
+        'geometry', encoder=encode_geometry, decoder=decode_geometry, format='binary',
     )
 
 
