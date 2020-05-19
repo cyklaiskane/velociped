@@ -42,7 +42,7 @@ async def find_route(start: LatLng, dest: LatLng, profile: int = 1) -> Iterable:
         ), path AS (
             SELECT
                 ST_MakeLine(geom) AS geom,
-                least(greatest(ST_Length(ST_MakeLine(geom)) * 0.2, 1000), 5000) AS limit
+                least(greatest(ST_Length(ST_MakeLine(geom)) * 0.4, 1000), 5000) AS limit
             FROM waypoints
         ), weights(ts_klass, weight, penalty) AS (
             VALUES {weights_sql}
