@@ -26,16 +26,16 @@ element.id = 'map';
 document.body.appendChild(element);
 
 const tsStyles = {
-  C1: {color: '#5e96a8', opacity: 1, weight: 4},
-  C2: {color: '#C49949', opacity: 1, weight: 4},
-  C3: {color: '#5e96a8', opacity: 1, weight: 4},
-  B1: {color: '#61b9bd', opacity: 1, weight: 3},
-  B2: {color: '#b5dfe1', opacity: 1, weight: 3},
-  B3: {color: '#ff8b9e', opacity: 1, weight: 3},
-  B4: {color: '#a7616d', opacity: 1, weight: 3},
-  B5: {color: '#808080', opacity: 1, weight: 3},
-  G1: {color: '#c4b79f', opacity: 1, weight: 3},
-  G2: {color: '#c4b79f', opacity: 1, weight: 3},
+  C1: {color: '#5e96a8', opacity: 1, weight: 5},
+  C2: {color: '#C49949', opacity: 1, weight: 5},
+  C3: {color: '#5e96a8', opacity: 1, weight: 5},
+  B1: {color: '#61b9bd', opacity: 1, weight: 4},
+  B2: {color: '#b5dfe1', opacity: 1, weight: 4},
+  B3: {color: '#ff8b9e', opacity: 1, weight: 4},
+  B4: {color: '#a7616d', opacity: 1, weight: 4},
+  B5: {color: '#808080', opacity: 1, weight: 4},
+  G1: {color: '#c4b79f', opacity: 1, weight: 4},
+  G2: {color: '#c4b79f', opacity: 1, weight: 4},
 }
 
 const vtStyles = {
@@ -45,8 +45,8 @@ const vtStyles = {
     //console.log(style.weight * zoom / 18);
     return {
       color: style.color,
-      opacity: 1,
-      weight: style.weight * (Math.tanh(zoom / 3 - 5) + 1),
+      opacity: 0.7,
+      weight: 0.4 * style.weight * (Math.tanh(zoom / 3 - 5) + 1),
     };
   }
 };
@@ -99,10 +99,11 @@ const Velorouter = L.Class.extend({
           inputWaypoints: waypoints,
           waypoints: [],
           instructions: route.segments.map(segment => {
+            const name = segment.name || '';
             return {
               distance: segment.length,
               time: segment.duration,
-              text: `${segment.ts_klass} ${segment.name}`,
+              text: `${segment.ts_klass} ${name}`,
             }
           }),
         }
@@ -121,9 +122,14 @@ const Velorouter = L.Class.extend({
 
 const Veloline = L.Routing.Line.extend({
   initialize: function(route, options) {
-    options.styles = [{
-      color: 'black', opacity: 0.15, weight: 10,
-    }];
+    options.styles = [
+      {
+        color: 'black', opacity: 0.7, weight: 10,
+      },
+      {
+        color: 'white', opacity: 0.5, weight: 6,
+      }
+    ];
     L.Routing.Line.prototype.initialize.call(this, route, options);
 
     for (const segment of route.segments) {
