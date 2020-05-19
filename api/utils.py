@@ -154,20 +154,13 @@ async def find_route(start: LatLng, dest: LatLng, profile: int = 1) -> Iterable:
         )
         SELECT
             array_agg(objectid) as ids,
-            array_agg(seq ORDER BY seq) as seq,
-            array_agg(part_start ORDER BY seq) as starts,
-            array_agg(part_valid) as part_valids,
-            array_agg(ST_AsText(geom)) as part_wkt,
             part,
             ts_klass,
             name,
             SUM(length) as length,
             SUM(duration) as duration,
-            MIN(waypoint_id) as waypoint_id,
-            ST_IsValidDetail(ST_MakeLine(geom ORDER BY seq)) as valid_geom,
-            ST_AsText(ST_MakeLine(geom ORDER BY seq)) as geom_wkt,
             ST_MakeLine(geom ORDER BY seq) as geom
-        FROM (SELECT *, SUM(part_start) OVER (ORDER BY seq) part, ST_IsValid(geom) part_valid FROM parts) _
+        FROM (SELECT *, SUM(part_start) OVER (ORDER BY seq) part FROM parts) _
         WHERE GeometryType(geom) = 'LINESTRING'
         GROUP BY part, ts_klass, name
         ORDER BY part
