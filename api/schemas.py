@@ -1,9 +1,9 @@
-from typing import List, Optional, Tuple, Literal, Union, Dict, Any
+from typing import List, Optional, Tuple, Literal, Union, Dict, Any, NewType
 from uuid import UUID
 from datetime import datetime
 
-from pydantic import BaseModel
-
+from pydantic import BaseModel, conlist
+from pydantic.dataclasses import dataclass
 
 class LatLng(BaseModel):
     lat: float
@@ -189,5 +189,6 @@ class AdressReferens(BaseModel):
     beteckning: str
 
 
-class AdressReferensResponse(BaseModel):
-    belagenhetsadressreferens: List[AdressReferens]
+@dataclass
+class AdressReferensResponse:
+    refs: List[AdressReferens]

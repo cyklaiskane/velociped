@@ -12,7 +12,7 @@ from starlette.middleware.cors import CORSMiddleware
 
 from api.config import CORS_ORIGINS, LM_CLIENT_ID, LM_CLIENT_SECRET, LM_TOKEN_URL, LM_ADDRESS_BASE_URL
 from api.database import db
-from api.schemas import LatLng, Route, RouteQuery, Segment
+from api.schemas import LatLng, Route, RouteQuery, Segment, AdressFeature, AdressResponse, AdressReferensResponse
 from api.security import fetch_token, update_token
 from api.utils import find_route, pairwise
 
@@ -68,18 +68,16 @@ async def foo(request: Request) -> None:
     logging.debug(request.headers)
 
 
-def parse_result(feature: dict) -> dict:
+def parse_result(feature: AdressFeature) -> dict:
+    debug(feature)
     to4326 = Transformer.from_crs('epsg:3006', 'epsg:4326', always_xy=True)
 
-    house = feature['adressplatsattribut']['adressplatsbeteckning']['adressplatsnummer']
-    street = feature['adressomrade']['faststalltNamn']
-    place = feature['adressomrade']['kommundel']['faststalltNamn']
-    muni = feature['adressomrade']['kommundel']['kommun']['kommunnamn']
-    coords = feature['adressplatsattribut']['adressplatspunkt']['coordinates']
+    name = feature.display_name
+    coords = feature.properties.adressplatsattribut.adressplatspunkt.coordinates
     loc = to4326.transform(*coords)
 
     return {
-        'name': f'{street} {house}, {place}, {muni}',
+        'name': name,
         'lat': loc[1],
         'lng': loc[0],
         'feature': feature,
@@ -90,13 +88,14 @@ def parse_result(feature: dict) -> dict:
 async def address_search(text: str, request: Request) -> List:
     r = await oauth.lm.get(f'referens/fritext/{text}', params={'maxHits': 5}, request=request)
     r.raise_for_status()
-    refs = r.json()
-    ids = [ref['objektidentitet'] for ref in refs]
+    refs = AdressReferensResponse(r.json()).refs
+    debug(refs)
+    ids = [ref.objektidentitet for ref in refs]
     r = await oauth.lm.post('', json=ids, params={'includeData': 'basinformation'}, request=request)
     r.raise_for_status()
-    result = r.json()
+    result = AdressResponse(**r.json())
     debug(result)
-    response = [parse_result(feature['properties']) for feature in result['features']]
+    response = [parse_result(feature) for feature in result.features]
     debug(response)
     return response
 
@@ -107,9 +106,9 @@ async def reverse(lat: float, lng: float, request: Request):
     e, n = to3006.transform(lng, lat)
     r = await oauth.lm.get(f'punkt/3006/{n},{e}', params={'includeData': 'basinformation'}, request=request)
     r.raise_for_status()
-    result = r.json()
+    result = AdressResponse(**r.json())
     debug(result)
-    feature = result['features'][0]['properties']
+    feature = result.features[0]
     response = parse_result(feature)
     return response
 
