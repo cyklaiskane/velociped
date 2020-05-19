@@ -9,7 +9,7 @@ poetry run autoflake \
   --in-place api \
   --exclude=__init__.py
 
-poetry run black api
+poetry run black --skip-string-normalization api
 
 poetry run isort \
   --recursive \
