@@ -40,7 +40,7 @@ const tsStyles = {
 
 const vtStyles = {
   roads: function(properties, zoom, geometryDimension) {
-    let style = tsStyles[properties.ts_klass] || {color: 'grey', opacity: 1, weight: 1};
+    let style = tsStyles[properties.ts_klass] || {color: 'grey', opacity: 1, weight: 3};
     //style.weight = style.weight * zoom / 18;
     //console.log(style.weight * zoom / 18);
     return {
