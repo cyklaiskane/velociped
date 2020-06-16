@@ -229,10 +229,7 @@ const Velocoder = L.Class.extend({
 });
 
 const routing = new L.Routing.control({
-  waypoints: [
-    L.latLng(55.665193184436035, 13.355383872985841),
-    L.latLng(55.66727479751119, 13.340320587158205)
-  ],
+  waypoints: initWaypoints,
   router: new Velorouter({foo: 'bar'}),
   routeLine: function(route, options) {
     //console.log(options);
