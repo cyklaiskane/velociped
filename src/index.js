@@ -3,6 +3,9 @@ import L from 'leaflet';
 import 'leaflet.vectorgrid'
 import 'leaflet-routing-machine';
 import 'leaflet-control-geocoder';
+
+import {buildGPX, BaseBuilder} from 'gpx-builder';
+
 import './style.css';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
@@ -90,6 +93,9 @@ const Velorouter = L.Class.extend({
       //const coordinates = data.features.map(feature => L.GeoJSON.coordsToLatLngs(feature.geometry.coordinates)).flat()
       const result = data.map(route => {
         const coordinates = route.segments.map(segment => L.GeoJSON.coordsToLatLngs(segment.coords)).flat();
+        const gpxData = new BaseBuilder();
+        gpxData.setSegmentPoints(coordinates.map(coord => new BaseBuilder.MODELS.Point(coord.lat, coord.lng)));
+        //console.log(buildGPX(gpxData.toObject()));
         //L.polyline(coordinates, {color: 'green'}).addTo(map);
         return {
           name: route.name,
