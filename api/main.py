@@ -227,8 +227,6 @@ async def do_route(waypoints: List, name: str, profile: int) -> Route:
 
     for result in results:
         for row in result:
-            if row['waypoint_id'] is not None:
-                debug(row)
             segment = Segment(
                 coords=row['geom'].coords[:],
                 name=row['name'],
