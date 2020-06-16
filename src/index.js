@@ -252,6 +252,46 @@ L.control.layers(baseMaps, overlayMaps, {
   position: 'topleft',
 }).addTo(map);
 
+map
+  .on('click', function (e) {
+    console.log(e);
+    let wps = routing.getWaypoints();
+    console.log(wps);
+    if (wps.length === 0) {
+      routing.spliceWaypoints(0, 1, {
+        latLng: e.latlng,
+        name: '',
+      });
+    } else {
+      routing.spliceWaypoints(wps.length, 1, {
+        latLng: e.latlng,
+        name: '',
+      });
+    }
+    console.log(routing.getWaypoints());
+  });
+
+
+const GpxControl = L.Control.extend({
+  onAdd: function (map) {
+    let container = L.DomUtil.create('div', 'leaflet-bar');
+    let action = L.DomUtil.create('a', 'gpx-export', container);
+
+    action.title = 'Exportera som GPX';
+    action.text = 'GPX';
+
+    L.DomEvent.disableClickPropagation(container);
+    L.DomEvent.on(action, 'click', function (e) {
+      console.log('GPX EXPORT!');
+      console.log(this);
+    });
+
+    return container;
+  }
+});
+
+new GpxControl({position: 'topleft', routing: 'foobar'}).addTo(map);
+
 /*
 var route = null;
 
