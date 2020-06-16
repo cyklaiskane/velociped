@@ -4,7 +4,8 @@ import 'leaflet.vectorgrid'
 import 'leaflet-routing-machine';
 import 'leaflet-control-geocoder';
 
-import {buildGPX, BaseBuilder} from 'gpx-builder';
+import { saveAs } from 'file-saver';
+import { buildGPX, BaseBuilder } from 'gpx-builder';
 
 import './style.css';
 import 'leaflet/dist/leaflet.css';
@@ -114,9 +115,6 @@ const Velorouter = L.Class.extend({
       //const coordinates = data.features.map(feature => L.GeoJSON.coordsToLatLngs(feature.geometry.coordinates)).flat()
       const result = data.map(route => {
         const coordinates = route.segments.map(segment => L.GeoJSON.coordsToLatLngs(segment.coords)).flat();
-        const gpxData = new BaseBuilder();
-        gpxData.setSegmentPoints(coordinates.map(coord => new BaseBuilder.MODELS.Point(coord.lat, coord.lng)));
-        //console.log(buildGPX(gpxData.toObject()));
         //L.polyline(coordinates, {color: 'green'}).addTo(map);
         return {
           name: route.name,
@@ -280,17 +278,30 @@ const GpxControl = L.Control.extend({
     action.title = 'Exportera som GPX';
     action.text = 'GPX';
 
+    console.log(this.options);
+
+    const routingCtl = this.options.routing;
+
     L.DomEvent.disableClickPropagation(container);
     L.DomEvent.on(action, 'click', function (e) {
       console.log('GPX EXPORT!');
+      console.log(routingCtl._selectedRoute.coordinates);
+      const gpxData = new BaseBuilder();
+      gpxData.setSegmentPoints(routingCtl._selectedRoute.coordinates.map(coord => new BaseBuilder.MODELS.Point(coord.lat, coord.lng)));
+      const data = buildGPX(gpxData.toObject());
+      console.log(data);
       console.log(this);
+      const blob = new Blob([data], {
+        type: 'application/gpx+xml'
+      })
+      saveAs(blob, 'route.gpx');
     });
 
     return container;
   }
 });
 
-new GpxControl({position: 'topleft', routing: 'foobar'}).addTo(map);
+new GpxControl({position: 'topleft', routing: routing}).addTo(map);
 
 /*
 var route = null;

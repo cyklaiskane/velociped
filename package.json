@@ -12,6 +12,7 @@
   "author": "Joakim Fors <joakim.fors@trivector.se",
   "license": "GPLv3",
   "dependencies": {
+    "file-saver": "^2.0.2",
     "gpx-builder": "^3.2.0",
     "leaflet": "^1.6.0",
     "leaflet-control-geocoder": "^1.13.0",
