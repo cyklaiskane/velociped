@@ -67,6 +67,24 @@ const tsTiles = L.tileLayer('http://localhost:3000/styles/velo/{z}/{x}/{y}.png',
 
 });
 
+//
+
+const wptHash = window.location.hash.match(/\d+.\d+/g);
+console.log(wptHash);
+let initWaypoints = [];
+if (wptHash && wptHash.length > 0 && wptHash.length % 2 === 0) {
+  console.log('Fooo!');
+  for (let i = 1; i < wptHash.length; i += 2) {
+    initWaypoints.push(L.latLng(wptHash[i-1], wptHash[i]));
+    console.log(initWaypoints);
+  }
+} else {
+  initWaypoints = [
+    L.latLng(55.665193184436035, 13.355383872985841),
+    L.latLng(55.66727479751119, 13.340320587158205)
+  ];
+}
+
 //element.innerHTML = _.join(['Hello', 'webpack'], ' ');
 var map = L.map(element, {
   center: [55.665193184436035, 13.355383872985841],
@@ -83,6 +101,9 @@ const Velorouter = L.Class.extend({
     let query = {
       waypoints: waypoints.map(waypoint => waypoint.latLng),
     }
+    const hash = waypoints.map(waypoint => `${waypoint.latLng.lat},${waypoint.latLng.lng}`).join(';');
+    console.log(hash);
+    window.location.hash = hash;
     fetch(apiUri + '/api/route', {
       method: 'POST',
       body: JSON.stringify(query),
