@@ -138,6 +138,7 @@ const Velorouter = L.Class.extend({
       callback.call(context, null, result);
     })
     .catch(error => {
+      console.log(error);
       callback.call(context, error, null);
     });
   }
@@ -234,7 +235,7 @@ const routing = new L.Routing.control({
     //console.log(route.segments);
     return new Veloline(route, options);
   },
-  geocoder: new Velocoder(), //L.Control.Geocoder.nominatim(),
+  geocoder: L.Control.Geocoder.latLng(), //null //new Velocoder(), //L.Control.Geocoder.nominatim(),
 }).addTo(map);
 
 const baseMaps = {
