@@ -124,12 +124,13 @@ async def get_items() -> List:
 
 @app.head('/tiles.json')
 @app.get('/tiles.json')
-def tilejson() -> dict:
+def tilejson(request: Request) -> dict:
+    base_url = request.base_url
     return {
         'tilejson': '2.2.0',
-        'name': 'Cyklaiskåne',
-        'description': 'Foobar',
-        'tiles': ['http://localhost:8000/tiles/{z}/{x}/{y}.pbf'],
+        'name': 'tsnet',
+        'description': 'Trafiksäkerhetsklassat vägnät',
+        'tiles': [str(base_url) + 'tiles/{z}/{x}/{y}.pbf'],
     }
 
 
