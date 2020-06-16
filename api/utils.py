@@ -170,6 +170,6 @@ async def find_route(start: LatLng, dest: LatLng, profile: int = 1) -> Iterable:
         GROUP BY part, ts_klass, name
         ORDER BY part
     '''
-    #logging.debug(sql)
+    print(sql)
 
     return await db.fetch_all(sql)
