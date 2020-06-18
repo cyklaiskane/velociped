@@ -13,6 +13,15 @@
         "serve_rendered": true,
         "serve_data": true
       }
+    },
+    "bg": {
+      "style": "bgstyle.json",
+      "tilejson": {
+        "type": "background",
+        "format": "png",
+        "serve_rendered": true,
+        "serve_data": true
+      }
     }
   }
 }

@@ -57,7 +57,11 @@ const vtStyles = {
 
 const darkmatter = L.tileLayer('https://api.maptiler.com/maps/darkmatter/{z}/{x}/{y}.png?key=jrAoRNrX6nfYt6nZNnnW', {
   attribution: '© OpenStreetMap contributors'
-})
+});
+
+const bg = L.tileLayer('http://localhost:3000/styles/bg/{z}/{x}/{y}.png', {
+
+});
 
 const mvt = L.vectorGrid.protobuf('http://localhost:8000/tiles/{z}/{x}/{y}.pbf', {
   renderFactory: L.canvas.tile,
@@ -90,7 +94,7 @@ if (wptHash && wptHash.length > 0 && wptHash.length % 2 === 0) {
 var map = L.map(element, {
   center: [55.665193184436035, 13.355383872985841],
   zoom: 14,
-  layers: [darkmatter, mvt],
+  layers: [bg, mvt],
 });
 
 console.log(L);
@@ -239,6 +243,7 @@ const routing = new L.Routing.control({
 }).addTo(map);
 
 const baseMaps = {
+  bg: bg,
   dark: darkmatter,
 };
 
