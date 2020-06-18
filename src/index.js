@@ -251,24 +251,33 @@ L.control.layers(baseMaps, overlayMaps, {
   position: 'topleft',
 }).addTo(map);
 
-map
-  .on('click', function (e) {
-    console.log(e);
-    let wps = routing.getWaypoints();
-    console.log(wps);
-    if (wps.length === 0) {
-      routing.spliceWaypoints(0, 1, {
-        latLng: e.latlng,
-        name: '',
-      });
-    } else {
-      routing.spliceWaypoints(wps.length, 1, {
-        latLng: e.latlng,
-        name: '',
-      });
-    }
-    console.log(routing.getWaypoints());
-  });
+function createButton(label, container) {
+    var btn = L.DomUtil.create('button', '', container);
+    btn.setAttribute('type', 'button');
+    btn.innerHTML = label;
+    return btn;
+}
+
+map.on('click', function(e) {
+    const container = L.DomUtil.create('div'),
+        startBtn = createButton('Start from this location', container),
+        destBtn = createButton('Go to this location', container);
+
+    L.popup()
+      .setContent(container)
+      .setLatLng(e.latlng)
+      .openOn(map);
+
+    L.DomEvent.on(startBtn, 'click', function() {
+      routing.spliceWaypoints(0, 1, e.latlng);
+      map.closePopup();
+    });
+
+    L.DomEvent.on(destBtn, 'click', function() {
+      routing.spliceWaypoints(routing.getWaypoints().length - 1, 1, e.latlng);
+      map.closePopup();
+    });
+});
 
 
 const GpxControl = L.Control.extend({
