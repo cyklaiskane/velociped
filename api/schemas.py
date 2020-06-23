@@ -1,9 +1,10 @@
-from typing import List, Optional, Tuple, Literal, Union, Dict, Any, NewType
+from typing import List, Optional, Tuple, Literal, Dict, Any
 from uuid import UUID
 from datetime import datetime
 
-from pydantic import BaseModel, conlist
+from pydantic import BaseModel
 from pydantic.dataclasses import dataclass
+
 
 class LatLng(BaseModel):
     lat: float
