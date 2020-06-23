@@ -42,7 +42,7 @@ oauth.register(
 #    secret_key='should-be-random'
 # )
 
-app.mount('/static', StaticFiles(directory='static'), name='static')
+app.mount('/assets', StaticFiles(directory='assets'), name='assets')
 
 origins = []
 for origin in CORS_ORIGINS:

@@ -64,7 +64,7 @@ RUN apk add --no-cache libffi libpq geos
 
 COPY --from=builder /venv /venv
 COPY . ./
-COPY --from=node-builder /app/dist/* /app/static/
+COPY --from=node-builder /app/dist/* /app/assets/
 
 EXPOSE 8000
 
