@@ -3,9 +3,12 @@
   "version": "0.0.1",
   "description": "Bicycle router",
   "private": true,
+  "sideEffects": [
+    "*.css"
+  ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack",
+    "build": "webpack --mode production",
     "watch": "webpack --watch",
     "serve": "webpack-dev-server --open"
   },

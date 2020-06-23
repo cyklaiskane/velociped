@@ -5,7 +5,10 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 
 module.exports = {
-  mode: 'development',
+  mode: 'production',
+  optimization: {
+    usedExports: true,
+  },
   entry: './src/index.js',
   devtool: 'inline-source-map',
   devServer: {
@@ -40,7 +43,7 @@ module.exports = {
           'file-loader',
         ],
       },
-      {
+      /*{
         test: /\.m?js$/,
         exclude: /(node_modules|bower_components)/,
         use: {
@@ -49,7 +52,7 @@ module.exports = {
             presets: ['@babel/preset-env']
           }
         }
-      },
+      },*/
     ],
   },
 };
