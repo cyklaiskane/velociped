@@ -1,3 +1,6 @@
+#
+# UI builder
+#
 FROM node:lts-alpine as node-builder
 
 WORKDIR /app
@@ -13,8 +16,10 @@ ENV NODE_ENV=production \
 
 RUN npm run build
 
-
-FROM python:3.7-alpine as base
+#
+# Base
+#
+FROM python:3.8-alpine as base
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -24,6 +29,9 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
+#
+# API builder
+#
 FROM base as builder
 
 ENV PIP_DEFAULT_TIMEOUT=100 \
@@ -47,7 +55,9 @@ RUN set -euxo pipefail; \
       | /venv/bin/pip install -r /dev/stdin
 
 
+#
 # Final
+#
 FROM base as final
 
 RUN apk add --no-cache libffi libpq geos
