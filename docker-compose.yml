@@ -17,6 +17,14 @@ services:
       - "traefik.http.services.cyklaiskane.loadbalancer.server.port=8000"
 
 
+  tileserver:
+    image: tileserver-gl
+    ports:
+      - 3000:8000
+    volumes:
+      - ./tileserver:/data
+
+
   db:
     image: pgrouting/pgrouting:12-3.0-2.6.3
     environment:
