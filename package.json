@@ -8,9 +8,9 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --mode production",
+    "build": "webpack --config webpack.prod.js",
     "watch": "webpack --watch",
-    "serve": "webpack-dev-server --open"
+    "serve": "webpack-dev-server --config webpack.dev.js"
   },
   "author": "Joakim Fors <joakim.fors@trivector.se",
   "license": "GPLv3",
@@ -32,8 +32,10 @@
     "file-loader": "^6.0.0",
     "html-webpack-plugin": "^4.2.0",
     "style-loader": "^1.1.4",
+    "terser-webpack-plugin": "^3.0.6",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11",
-    "webpack-dev-server": "^3.10.3"
+    "webpack-dev-server": "^3.10.3",
+    "webpack-merge": "^4.2.2"
   }
 }

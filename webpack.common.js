@@ -5,20 +5,11 @@ const { CleanWebpackPlugin } = require('clean-webpack-plugin');
 
 
 module.exports = {
-  mode: 'production',
-  optimization: {
-    usedExports: true,
-  },
   entry: './src/index.js',
-  devtool: 'inline-source-map',
-  devServer: {
-    contentBase: './dist',
-    open: false,
-  },
   plugins: [
     new CleanWebpackPlugin(),
     new HtmlWebpackPlugin({
-      title: 'Cykla i Skåne (DEVELOPMENT)',
+      title: 'Cykla i Skåne',
     }),
     new webpack.EnvironmentPlugin({
       APP_API_URI: 'http://localhost:8000',
@@ -26,6 +17,7 @@ module.exports = {
   ],
   output: {
     filename: 'bundle.js',
+    publicPath: '/assets/',
     path: path.resolve(__dirname, 'dist'),
   },
   module: {
@@ -43,16 +35,6 @@ module.exports = {
           'file-loader',
         ],
       },
-      /*{
-        test: /\.m?js$/,
-        exclude: /(node_modules|bower_components)/,
-        use: {
-          loader: 'babel-loader',
-          options: {
-            presets: ['@babel/preset-env']
-          }
-        }
-      },*/
     ],
   },
 };
