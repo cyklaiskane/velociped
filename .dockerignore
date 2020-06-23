@@ -1,9 +1,8 @@
-node_modules
-.env
-.gitignore
-.git
-NOTES*
-docker-compose.yml
-data
-Dockerfile
-*.tar
+*
+!api/
+!src/
+!templates/
+!package*.json
+!poetry.lock
+!pyproject.toml
+!webpack.*.js
