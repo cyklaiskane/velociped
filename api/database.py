@@ -1,4 +1,4 @@
-from typing import Any, Type
+from typing import Any, Type, Optional
 import logging
 import shapely.geometry
 import shapely.wkb
@@ -16,7 +16,7 @@ async def init_con(con: Connection) -> None:
         shape = shapely.geometry.asShape(geometry)
         return shapely.wkb.dumps(shape)
 
-    def decode_geometry(wkb: bytes) -> Type[BaseGeometry]:
+    def decode_geometry(wkb: bytes) -> Optional[Type[BaseGeometry]]:
         try:
             return shapely.wkb.loads(wkb)
         except Exception as e:

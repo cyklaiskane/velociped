@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Request
-from typing import List
+from typing import List, Union
 from api.schemas import LatLng, Route, RouteQuery, Segment, AdressFeature, AdressResponse, AdressReferensResponse
 import asyncio
 import logging
@@ -12,7 +12,7 @@ router = APIRouter()
 
 
 @router.post('/')
-async def route(query: RouteQuery, request: Request) -> List:
+async def route(query: RouteQuery, request: Request) -> Union[List, JSONResponse]:
     routes = []
 
     try:

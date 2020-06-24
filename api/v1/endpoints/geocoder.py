@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Request
 from pyproj import Transformer
-from typing import Any, List
+from typing import Any, List, Dict
 
 from api.config import CORS_ORIGINS, LM_CLIENT_ID, LM_CLIENT_SECRET, LM_TOKEN_URL, LM_ADDRESS_BASE_URL
 from api.security import oauth
@@ -14,7 +14,7 @@ def parse_result(feature: AdressFeature) -> dict:
     to4326 = Transformer.from_crs('epsg:3006', 'epsg:4326', always_xy=True)
 
     name = feature.display_name
-    coords = feature.properties.adressplatsattribut.adressplatspunkt.coordinates
+    coords = feature.properties.adressplatsattribut.adressplatspunkt.coordinates  # type: ignore
     loc = to4326.transform(*coords)
 
     return {
@@ -39,7 +39,7 @@ async def address_search(text: str, request: Request) -> List:
 
 
 @router.get('/reverse/{lat},{lng}')
-async def reverse(lat: float, lng: float, request: Request):
+async def reverse(lat: float, lng: float, request: Request) -> Dict:
     to3006 = Transformer.from_crs('epsg:4326', 'epsg:3006', always_xy=True)
     e, n = to3006.transform(lng, lat)
     r = await oauth.lm.get(f'punkt/3006/{n},{e}', params={'includeData': 'basinformation'}, request=request)

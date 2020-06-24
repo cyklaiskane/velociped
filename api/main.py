@@ -44,7 +44,7 @@ async def index(request: Request) -> Any:
 
 
 @app.get('/ping')
-async def ping():
+async def ping() -> str:
     return 'ok'
 
 
