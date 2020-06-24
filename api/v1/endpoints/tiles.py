@@ -5,8 +5,7 @@ from api.database import db
 router = APIRouter()
 
 
-@router.head('/ts.json')
-@router.get('/ts.json')
+@router.api_route('/ts.json', methods=['GET', 'HEAD'])
 def tilejson(request: Request) -> dict:
     base_url = request.base_url
     return {
