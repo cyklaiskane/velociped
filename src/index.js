@@ -94,7 +94,7 @@ if (wptHash && wptHash.length > 0 && wptHash.length % 2 === 0) {
 var map = L.map(element, {
   center: [55.665193184436035, 13.355383872985841],
   zoom: 14,
-  layers: [bg, mvt],
+  layers: [bg],
 });
 
 
