@@ -4,7 +4,7 @@
   "sources": {
     "roads": {
       "type": "vector",
-      "url": "http://magma:8000/tiles.json"
+      "url": "http://app:8000/tiles.json"
     }
   },
   "layers": [
