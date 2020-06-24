@@ -59,7 +59,7 @@ const bg = L.tileLayer('http://localhost:3000/styles/bg/{z}/{x}/{y}.png', {
 
 });
 
-const mvt = L.vectorGrid.protobuf('http://localhost:8000/tiles/{z}/{x}/{y}.pbf', {
+const mvt = L.vectorGrid.protobuf(apiUri + '/tiles/{z}/{x}/{y}.pbf', {
   renderFactory: L.canvas.tile,
   vectorTileLayerStyles: vtStyles,
 });
