@@ -8,8 +8,14 @@ from starlette.middleware.cors import CORSMiddleware
 
 from api import v1
 from api.config import (
-    CORS_ORIGINS, HOST, LM_ADDRESS_BASE_URL, LM_CLIENT_ID, LM_CLIENT_SECRET,
-    LM_TOKEN_URL, PORT,)
+    CORS_ORIGINS,
+    HOST,
+    LM_ADDRESS_BASE_URL,
+    LM_CLIENT_ID,
+    LM_CLIENT_SECRET,
+    LM_TOKEN_URL,
+    PORT,
+)
 from api.database import db
 from api.security import oauth
 
