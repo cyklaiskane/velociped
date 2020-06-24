@@ -12,7 +12,7 @@ module.exports = {
       title: 'Cykla i Skåne',
     }),
     new webpack.EnvironmentPlugin({
-      APP_API_URI: 'http://localhost:8000',
+      API_BASE_URL: 'http://localhost:8000',
     }),
   ],
   output: {

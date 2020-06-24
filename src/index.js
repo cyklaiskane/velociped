@@ -24,7 +24,7 @@ L.Icon.Default.mergeOptions({
 });
 
 
-const apiUri = process.env.APP_API_URI;
+const apiBaseUrl = process.env.API_BASE_URL;
 const element = document.createElement('div');
 element.id = 'map';
 document.body.appendChild(element);
@@ -59,7 +59,7 @@ const bg = L.tileLayer('http://localhost:3000/styles/bg/{z}/{x}/{y}.png', {
 
 });
 
-const mvt = L.vectorGrid.protobuf(apiUri + '/tiles/{z}/{x}/{y}.pbf', {
+const mvt = L.vectorGrid.protobuf(apiBaseUrl + '/tiles/{z}/{x}/{y}.pbf', {
   renderFactory: L.canvas.tile,
   vectorTileLayerStyles: vtStyles,
 });
@@ -105,7 +105,7 @@ const Velorouter = L.Class.extend({
     const hash = waypoints.map(waypoint => `${waypoint.latLng.lat},${waypoint.latLng.lng}`).join(';');
     console.log(hash);
     window.location.hash = hash;
-    fetch(apiUri + '/api/route', {
+    fetch(apiBaseUrl + '/api/route', {
       method: 'POST',
       body: JSON.stringify(query),
     })
@@ -325,7 +325,7 @@ map.on('click', async (ev) => {
     start: {lat: 55.65760706736028, lng: 13.357245326042177},
     end: ev.latlng,
   }
-  const response = await fetch(apiUri + '/api/route', {
+  const response = await fetch(apiBaseUrl + '/api/route', {
     method: 'POST',
     body: JSON.stringify(query),
   });
