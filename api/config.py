@@ -14,4 +14,7 @@ CORS_ORIGINS = config('CORS_ORIGINS', cast=CommaSeparatedStrings, default='*')
 LM_CLIENT_ID = config('LM_CLIENT_ID', cast=Secret)
 LM_CLIENT_SECRET = config('LM_CLIENT_SECRET', cast=Secret)
 LM_TOKEN_URL = config('LM_TOKEN_URL', default='https://api.lantmateriet.se/token')
-LM_ADDRESS_BASE_URL = config('LM_ADDRESS_BASE_URL', default='https://api.lantmateriet.se/distribution/produkter/belagenhetsadress/v4.1/')
+LM_ADDRESS_BASE_URL = config(
+    'LM_ADDRESS_BASE_URL',
+    default='https://api.lantmateriet.se/distribution/produkter/belagenhetsadress/v4.1/',
+)

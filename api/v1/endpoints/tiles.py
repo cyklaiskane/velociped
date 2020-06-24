@@ -1,5 +1,7 @@
-from fastapi import APIRouter, Request, Response
 import logging
+
+from fastapi import APIRouter, Request, Response
+
 from api.database import db
 
 router = APIRouter()

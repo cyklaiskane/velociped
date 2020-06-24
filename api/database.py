@@ -1,5 +1,6 @@
-from typing import Any, Type, Optional
 import logging
+from typing import Any, Optional, Type
+
 import shapely.geometry
 import shapely.wkb
 from asyncpg import Connection

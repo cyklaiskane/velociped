@@ -1,11 +1,10 @@
+from typing import Dict, List
+
 from fastapi import APIRouter, Request
 from pyproj import Transformer
-from typing import Any, List, Dict
 
-from api.config import CORS_ORIGINS, LM_CLIENT_ID, LM_CLIENT_SECRET, LM_TOKEN_URL, LM_ADDRESS_BASE_URL
+from api.schemas import AdressFeature, AdressReferensResponse, AdressResponse
 from api.security import oauth
-from api.schemas import LatLng, Route, RouteQuery, Segment, AdressFeature, AdressResponse, AdressReferensResponse
-
 
 router = APIRouter()
 
@@ -27,11 +26,15 @@ def parse_result(feature: AdressFeature) -> dict:
 
 @router.get('/search/{text}')
 async def address_search(text: str, request: Request) -> List:
-    r = await oauth.lm.get(f'referens/fritext/{text}', params={'maxHits': 5}, request=request)
+    r = await oauth.lm.get(
+        f'referens/fritext/{text}', params={'maxHits': 5}, request=request
+    )
     r.raise_for_status()
     refs = AdressReferensResponse(r.json()).refs
     ids = [ref.objektidentitet for ref in refs]
-    r = await oauth.lm.post('', json=ids, params={'includeData': 'basinformation'}, request=request)
+    r = await oauth.lm.post(
+        '', json=ids, params={'includeData': 'basinformation'}, request=request
+    )
     r.raise_for_status()
     result = AdressResponse(**r.json())
     response = [parse_result(feature) for feature in result.features]
@@ -42,7 +45,9 @@ async def address_search(text: str, request: Request) -> List:
 async def reverse(lat: float, lng: float, request: Request) -> Dict:
     to3006 = Transformer.from_crs('epsg:4326', 'epsg:3006', always_xy=True)
     e, n = to3006.transform(lng, lat)
-    r = await oauth.lm.get(f'punkt/3006/{n},{e}', params={'includeData': 'basinformation'}, request=request)
+    r = await oauth.lm.get(
+        f'punkt/3006/{n},{e}', params={'includeData': 'basinformation'}, request=request
+    )
     r.raise_for_status()
     result = AdressResponse(**r.json())
     feature = result.features[0]

@@ -1,6 +1,6 @@
-from typing import List, Optional, Tuple, Literal, Dict, Any
-from uuid import UUID
 from datetime import datetime
+from typing import Any, Dict, List, Literal, Optional, Tuple
+from uuid import UUID
 
 from pydantic import BaseModel
 from pydantic.dataclasses import dataclass
@@ -57,8 +57,17 @@ class Punkt(BaseModel):
 
 class AdressplatsAttribut(BaseModel):
     adressplatsbeteckning: Adressplatsbeteckning
-    adressplatstyp: Literal['Gatuadressplats', 'Metertalsadressplats', 'Byadressplats', 'Gårdsadressplats']
-    insamlingslage: Literal['Byggnad', 'Ingång', 'Infart', 'Tomtplats', 'Ungefärligt lägesbestämd', 'Övrigt läge']
+    adressplatstyp: Literal[
+        'Gatuadressplats', 'Metertalsadressplats', 'Byadressplats', 'Gårdsadressplats'
+    ]
+    insamlingslage: Literal[
+        'Byggnad',
+        'Ingång',
+        'Infart',
+        'Tomtplats',
+        'Ungefärligt lägesbestämd',
+        'Övrigt läge',
+    ]
     adressplatspunkt: Punkt
     statusForBelagenhetsadress: Literal['Reserverad', 'Gällande']
     postnummer: Optional[int]
@@ -81,7 +90,9 @@ class Kommundel(BaseModel):
     versionGiltigFran: Optional[datetime]
     faststalltNamn: str
     ortid: Optional[str]
-    objektstatus: Literal['Planerad', 'Gällande under utredning', 'Gällande', 'Avregistrerad']
+    objektstatus: Literal[
+        'Planerad', 'Gällande under utredning', 'Gällande', 'Avregistrerad'
+    ]
     kommun: Kommun
 
 
@@ -91,8 +102,12 @@ class BaseAdressOmrade(BaseModel):
     versionGiltigFran: Optional[datetime]
     faststalltNamn: str
     ortid: Optional[str]
-    adressomradestyp: Literal['Gatuadressområde', 'Metertalsadressområde', 'Byadressområde']
-    objektstatus: Literal['Planerad', 'Gällande under utredning', 'Gällande', 'Avregistrerad']
+    adressomradestyp: Literal[
+        'Gatuadressområde', 'Metertalsadressområde', 'Byadressområde'
+    ]
+    objektstatus: Literal[
+        'Planerad', 'Gällande under utredning', 'Gällande', 'Avregistrerad'
+    ]
 
 
 class AdressOmrade(BaseAdressOmrade):
@@ -126,7 +141,9 @@ class Adress(BaseModel):
     objektidentitet: UUID
     objektversion: int
     versionGiltigFran: Optional[datetime]
-    objektstatus: Literal['Planerad', 'Gällande under utredning', 'Gällande', 'Avregistrerad']
+    objektstatus: Literal[
+        'Planerad', 'Gällande under utredning', 'Gällande', 'Avregistrerad'
+    ]
     adressplatsattribut: Optional[AdressplatsAttribut]
     adressplatsnamn: Optional[AdressplatsNamn]
     adressomrade: Optional[AdressOmrade]
@@ -146,8 +163,12 @@ class Adress(BaseModel):
         if self.adressplatsattribut and self.adressplatsattribut.adressplatsbeteckning:
             if self.adressplatsattribut.adressplatsbeteckning.adressplatsnummer:
                 house = self.adressplatsattribut.adressplatsbeteckning.adressplatsnummer
-            elif self.adressplatsattribut.adressplatsbeteckning.avvikandeAdressplatsbeteckning:
-                house = self.adressplatsattribut.adressplatsbeteckning.avvikandeAdressplatsbeteckning
+            elif (
+                self.adressplatsattribut.adressplatsbeteckning.avvikandeAdressplatsbeteckning
+            ):
+                house = (
+                    self.adressplatsattribut.adressplatsbeteckning.avvikandeAdressplatsbeteckning
+                )
 
         if self.adressomrade and self.adressomrade.faststalltNamn:
             street = self.adressomrade.faststalltNamn

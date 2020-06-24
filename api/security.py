@@ -1,10 +1,10 @@
 import logging
 from typing import List, Optional
 
+from authlib.integrations.starlette_client import OAuth
 from authlib.oauth2.auth import OAuth2Token
 from devtools import debug
 from fastapi import Request
-from authlib.integrations.starlette_client import OAuth
 
 from api.schemas import Token
 

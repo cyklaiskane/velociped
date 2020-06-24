@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Request
-from typing import List, Union
-from api.schemas import LatLng, Route, RouteQuery, Segment, AdressFeature, AdressResponse, AdressReferensResponse
 import asyncio
 import logging
-from fastapi.responses import JSONResponse
-from api.v1.utils import find_route
-from api.utils import pairwise
+from typing import List, Union
 
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
+
+from api.schemas import Route, RouteQuery, Segment
+from api.utils import pairwise
+from api.v1.utils import find_route
 
 router = APIRouter()
 
@@ -19,7 +20,9 @@ async def route(query: RouteQuery, request: Request) -> Union[List, JSONResponse
         results = await asyncio.gather(
             *[
                 do_route(query.waypoints, name, profile)
-                for name, profile in [('Lämpligast', 1)] # [('Lämpligast', 1), ('Snabbast', 0), ('Säkrast', 2)]
+                for name, profile in [
+                    ('Lämpligast', 1)
+                ]  # [('Lämpligast', 1), ('Snabbast', 0), ('Säkrast', 2)]
             ]
         )
     except Exception as e:

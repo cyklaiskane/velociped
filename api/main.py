@@ -1,19 +1,17 @@
-import asyncio
 import logging
-from typing import Any, List
+from typing import Any
 
-from fastapi import FastAPI, Request, Response
-from fastapi.responses import JSONResponse
+from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.cors import CORSMiddleware
 
-from api.config import CORS_ORIGINS, LM_CLIENT_ID, LM_CLIENT_SECRET, LM_TOKEN_URL, LM_ADDRESS_BASE_URL, HOST, PORT
-from api.database import db
-from api.schemas import LatLng, Route, RouteQuery, Segment, AdressFeature, AdressResponse, AdressReferensResponse
-from api.security import oauth
-from api.utils import pairwise
 from api import v1
+from api.config import (
+    CORS_ORIGINS, HOST, LM_ADDRESS_BASE_URL, LM_CLIENT_ID, LM_CLIENT_SECRET,
+    LM_TOKEN_URL, PORT,)
+from api.database import db
+from api.security import oauth
 
 app = FastAPI()
 
@@ -48,7 +46,6 @@ async def ping() -> str:
     return 'ok'
 
 
-
 @app.on_event('startup')
 async def startup() -> None:
     await db.connect()
@@ -60,13 +57,10 @@ async def startup() -> None:
         access_token_url=LM_TOKEN_URL,
         client_kwargs={
             'grant_type': 'client_credentials',
-            'headers': {
-                'Accept': 'application/json',
-            },
+            'headers': {'Accept': 'application/json',},
         },
         api_base_url=LM_ADDRESS_BASE_URL,
     )
-
 
 
 @app.on_event('shutdown')
