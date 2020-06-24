@@ -55,10 +55,6 @@ const vtStyles = {
   }
 };
 
-const darkmatter = L.tileLayer('https://api.maptiler.com/maps/darkmatter/{z}/{x}/{y}.png?key=jrAoRNrX6nfYt6nZNnnW', {
-  attribution: '© OpenStreetMap contributors'
-});
-
 const bg = L.tileLayer('http://localhost:3000/styles/bg/{z}/{x}/{y}.png', {
 
 });
@@ -244,7 +240,6 @@ const routing = new L.Routing.control({
 
 const baseMaps = {
   bg: bg,
-  dark: darkmatter,
 };
 
 const overlayMaps = {
