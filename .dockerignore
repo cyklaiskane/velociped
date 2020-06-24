@@ -2,6 +2,7 @@
 !api/
 !src/
 !templates/
+!docker-entrypoint.sh
 !package*.json
 !poetry.lock
 !pyproject.toml
