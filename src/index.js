@@ -137,10 +137,10 @@ function createButton(label, container) {
     return btn;
 }
 
-map.on('click', function(e) {
+map.on('contextmenu', function(e) {
     const container = L.DomUtil.create('div'),
-        startBtn = createButton('Start from this location', container),
-        destBtn = createButton('Go to this location', container);
+        startBtn = createButton('Start', container),
+        destBtn = createButton('Mål', container);
 
     L.popup()
       .setContent(container)
