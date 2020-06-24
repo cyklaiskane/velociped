@@ -4,8 +4,12 @@ version: '3.7'
 services:
   app:
     image: velociped
+    depends_on:
+      - db
     environment:
-      POSTGRES_DSN: 'postgres://velociped:foobar@db/velociped'
+      - POSTGRES_DSN=postgres://velociped:foobar@db/velociped
+      - LM_CLIENT_ID
+      - LM_CLIENT_SECRET
     ports:
       - 8008:8000
     labels:
@@ -17,10 +21,26 @@ services:
       - "traefik.http.services.cyklaiskane.loadbalancer.server.port=8000"
 
 
+  cache:
+    image: varnish:stable
+    depends_on:
+      - tileserver
+    environment:
+      - VARNISH_SIZE=512M
+    ports:
+      - 3000:80
+    tmpfs:
+      - /var/lib/varnish:exec
+    volumes:
+      - ./varnish.vcl:/etc/varnish/default.vcl:ro
+
+
   tileserver:
     image: tileserver-gl
+    depends_on:
+      - app
     ports:
-      - 3000:8000
+      - 3001:8000
     volumes:
       - ./tileserver:/data
 
