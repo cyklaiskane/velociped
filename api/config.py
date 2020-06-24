@@ -4,6 +4,9 @@ from starlette.datastructures import CommaSeparatedStrings, Secret
 
 config = Config('.env')
 
+HOST = config('BIND_HOST', default='127.0.0.1')
+PORT = config('BIND_PORT', cast=int, default=8000)
+
 POSTGRES_DSN = config('POSTGRES_DSN', cast=DatabaseURL)
 
 CORS_ORIGINS = config('CORS_ORIGINS', cast=CommaSeparatedStrings, default='*')

@@ -4,6 +4,7 @@ from typing import List, Optional
 from authlib.oauth2.auth import OAuth2Token
 from devtools import debug
 from fastapi import Request
+from authlib.integrations.starlette_client import OAuth
 
 from api.schemas import Token
 
@@ -36,3 +37,6 @@ async def update_token(
             return
     tokens.append(Token(name=name, **token))
     debug(tokens)
+
+
+oauth = OAuth(fetch_token=fetch_token, update_token=update_token)

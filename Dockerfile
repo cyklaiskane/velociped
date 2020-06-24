@@ -68,7 +68,9 @@ COPY --from=node-builder /app/dist/* /app/assets/
 
 EXPOSE 8000
 
-ENV PYTHONPATH=/app
+ENV PYTHONPATH=/app \
+    BIND_HOST=0.0.0.0 \
+    BIND_PORT=8000
 
 ENTRYPOINT ["./docker-entrypoint.sh"]
 

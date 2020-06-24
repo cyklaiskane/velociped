@@ -17,7 +17,7 @@ export default L.Class.extend({
     const hash = waypoints.map(waypoint => `${waypoint.latLng.lat},${waypoint.latLng.lng}`).join(';');
     window.location.hash = hash;
 
-    fetch(this.options.serviceUrl + '/api/route', {
+    fetch(this.options.serviceUrl + '/v1/route', {
       method: 'POST',
       body: JSON.stringify(query),
     })
