@@ -23,6 +23,9 @@ export default L.Class.extend({
     })
     .then(response => response.json())
     .then(data => {
+      if (data.error) {
+        throw data.error;
+      }
       const result = data.map(route => {
         const coordinates = route.segments.map(segment => L.GeoJSON.coordsToLatLngs(segment.coords)).flat();
         return {
