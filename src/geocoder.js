@@ -14,7 +14,6 @@ export default L.Class.extend({
     fetch(this.options.serviceUrl + `/search/${query}`)
     .then(response => response.json())
     .then(data => {
-      console.log(data);
       const results = [];
 
       for (const item of data) {
@@ -26,7 +25,6 @@ export default L.Class.extend({
           properties: item,
         });
       }
-      console.log(results);
       callback.call(context, results);
     })
     .catch(error => {
@@ -38,7 +36,6 @@ export default L.Class.extend({
     fetch(this.options.serviceUrl + `/reverse/${location.lat},${location.lng}`)
     .then(response => response.json())
     .then(data => {
-      console.log(data);
       const results = [];
 
       let loc = L.latLng(data.lat, data.lng);
@@ -48,7 +45,6 @@ export default L.Class.extend({
         bounds: L.latLngBounds(loc, loc),
         properties: data,
       });
-      console.log(results);
       callback.call(context, results);
     })
     .catch(error => {

@@ -75,13 +75,10 @@ const tsTiles = L.tileLayer('http://localhost:3000/styles/velo/{z}/{x}/{y}.png',
 });
 
 const wptHash = window.location.hash.match(/\d+.\d+/g);
-console.log(wptHash);
 let initWaypoints = [];
 if (wptHash && wptHash.length > 0 && wptHash.length % 2 === 0) {
-  console.log('Fooo!');
   for (let i = 1; i < wptHash.length; i += 2) {
     initWaypoints.push(L.latLng(wptHash[i-1], wptHash[i]));
-    console.log(initWaypoints);
   }
 } else {
   initWaypoints = [
@@ -90,7 +87,6 @@ if (wptHash && wptHash.length > 0 && wptHash.length % 2 === 0) {
   ];
 }
 
-//element.innerHTML = _.join(['Hello', 'webpack'], ' ');
 var map = L.map(element, {
   center: [55.665193184436035, 13.355383872985841],
   zoom: 14,

@@ -11,26 +11,20 @@ export default L.Class.extend({
   },
 
   route: function(waypoints, callback, context, options) {
-    console.log(waypoints);
-    console.log(this);
-
     let query = {
       waypoints: waypoints.map(waypoint => waypoint.latLng),
     }
     const hash = waypoints.map(waypoint => `${waypoint.latLng.lat},${waypoint.latLng.lng}`).join(';');
-    console.log(hash);
     window.location.hash = hash;
+
     fetch(this.options.serviceUrl + '/api/route', {
       method: 'POST',
       body: JSON.stringify(query),
     })
     .then(response => response.json())
     .then(data => {
-      //console.log(data);
-      //const coordinates = data.features.map(feature => L.GeoJSON.coordsToLatLngs(feature.geometry.coordinates)).flat()
       const result = data.map(route => {
         const coordinates = route.segments.map(segment => L.GeoJSON.coordsToLatLngs(segment.coords)).flat();
-        //L.polyline(coordinates, {color: 'green'}).addTo(map);
         return {
           name: route.name,
           summary: {totalTime: route.duration, totalDistance: route.length},
@@ -49,7 +43,6 @@ export default L.Class.extend({
         }
       });
 
-      //console.log(result);
       callback.call(context, null, result);
     })
     .catch(error => {
