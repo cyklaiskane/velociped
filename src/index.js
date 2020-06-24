@@ -249,6 +249,7 @@ const overlayMaps = {
 
 L.control.layers(baseMaps, overlayMaps, {
   position: 'topleft',
+  hideSingleBase: true,
 }).addTo(map);
 
 function createButton(label, container) {
