@@ -3,6 +3,7 @@ import L from 'leaflet';
 import 'leaflet.vectorgrid'
 import 'leaflet-routing-machine';
 import 'leaflet-control-geocoder';
+import 'leaflet.icon.glyph';
 
 import { saveAs } from 'file-saver';
 import { buildGPX, BaseBuilder } from 'gpx-builder';
@@ -104,6 +105,15 @@ const routing = new L.Routing.control({
     return new Line(route, options, tsStyles);
   },
   geocoder: L.Control.Geocoder.latLng(), //null //new Velocoder(), //L.Control.Geocoder.nominatim(),
+  createMarker: function(i, wp) {
+    return L.marker(wp.latLng, {
+      icon: L.icon.glyph({
+        prefix: '',
+        glyph: (i + 1).toString(),
+      }),
+      draggable: true
+    });
+  },
 }).addTo(map);
 
 const baseMaps = {
