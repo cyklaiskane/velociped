@@ -1,3 +1,6 @@
+import L from 'leaflet';
+
+
 export default L.Routing.Line.extend({
   initialize: function(route, options, tsStyles) {
     options.styles = [
