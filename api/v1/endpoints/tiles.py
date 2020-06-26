@@ -88,7 +88,7 @@ def tilejson(layer: str, request: Request) -> dict:
 async def tile(layer: str, z: int, x: int, y: int) -> Response:
     if layer not in layers:
         raise HTTPException(status_code=404, detail="Layer not found")
-    resolution = 40075016.68557849 / (256 * 2 ** z)
+    resolution = 40075016.68557849 / (512 * 2 ** z)
     logging.debug(resolution)
     sql = layers[layer]['sql'].format(x=x, y=y, z=z, resolution=resolution)
     debug(sql)
