@@ -4,17 +4,20 @@ from fastapi import APIRouter, Request, Response
 
 from api.database import db
 
+from devtools import debug
+
 router = APIRouter()
 
 
 @router.api_route('/ts.json', methods=['GET', 'HEAD'])
 def tilejson(request: Request) -> dict:
     base_url = request.base_url
+    debug(request.url)
     return {
         'tilejson': '2.2.0',
         'name': 'tsnet',
         'description': 'Trafiksäkerhetsklassat vägnät',
-        'tiles': [str(base_url) + 'tiles/{z}/{x}/{y}.pbf'],
+        'tiles': [str(base_url) + 'ts/{z}/{x}/{y}.pbf'],
     }
 
 
@@ -53,6 +56,43 @@ async def tile(z: int, x: int, y: int) -> Response:
 
         )
         SELECT ST_AsMVT(mvtgeom.*, 'roads', 4096, 'geom') AS tile FROM mvtgeom
+    '''
+
+    tile = await db.fetch_val(sql, column='tile')
+
+    return Response(content=tile, media_type='application/x-protobuf')
+
+
+@router.api_route('/bg.json', methods=['GET', 'HEAD'])
+def bgtilejson(request: Request) -> dict:
+    base_url = request.base_url
+    return {
+        'tilejson': '2.2.0',
+        'name': 'bg',
+        'description': 'Bakgrund',
+        'tiles': [str(base_url) + 'bg/{z}/{x}/{y}.pbf'],
+    }
+
+
+@router.get('/bg/{z}/{x}/{y}.pbf')
+async def bgtile(z: int, x: int, y: int) -> Response:
+    sql = f'''
+        WITH mvtgeom AS (
+            SELECT
+                ST_AsMVTGeom(
+                    geom,
+                    ST_TileEnvelope({z}, {x}, {y}),
+                    4096,
+                    256,
+                    true
+                ) AS geom,
+                bg.kkod,
+                bg.kategori
+            FROM background bg
+            WHERE
+                ST_TileEnvelope({z}, {x}, {y}) && bg.geom
+        )
+        SELECT ST_AsMVT(mvtgeom.*, 'background', 4096, 'geom') AS tile FROM mvtgeom
     '''
 
     tile = await db.fetch_val(sql, column='tile')
