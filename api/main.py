@@ -15,6 +15,8 @@ from api.config import (
     LM_CLIENT_SECRET,
     LM_TOKEN_URL,
     PORT,
+    TILES_BG_URL,
+    TILES_TS_URL,
 )
 from api.database import db
 from api.security import oauth
@@ -44,7 +46,11 @@ templates = Jinja2Templates(directory='templates')
 
 @app.get('/')
 async def index(request: Request) -> Any:
-    return templates.TemplateResponse('index.html', {'request': request})
+    return templates.TemplateResponse('index.html', {
+        'request': request,
+        'tsUrl': TILES_TS_URL,
+        'bgUrl': TILES_BG_URL,
+    })
 
 
 @app.get('/ping')

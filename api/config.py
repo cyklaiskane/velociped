@@ -7,6 +7,9 @@ config = Config('.env')
 HOST = config('BIND_HOST', default='0.0.0.0')
 PORT = config('BIND_PORT', cast=int, default=8000)
 
+TILES_BG_URL = config('TILES_BG_URL', default='http://localhost:3000/styles/bg/{z}/{x}/{y}.png')
+TILES_TS_URL = config('TILES_TS_URL', default='http://localhost:3000/styles/velo/{z}/{x}/{y}.png')
+
 POSTGRES_DSN = config('POSTGRES_DSN', cast=DatabaseURL)
 
 CORS_ORIGINS = config('CORS_ORIGINS', cast=CommaSeparatedStrings, default='*')
