@@ -122,7 +122,7 @@ const routing = new L.Routing.control({
 
 const baseMaps = {
   'Bakgrund': backgroundTiles,
-  'MVT bg': bgMvt,
+  //'MVT bg': bgMvt,
 };
 
 const overlayMaps = {
