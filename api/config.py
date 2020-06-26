@@ -4,7 +4,7 @@ from starlette.datastructures import CommaSeparatedStrings, Secret
 
 config = Config('.env')
 
-HOST = config('BIND_HOST', default='127.0.0.1')
+HOST = config('BIND_HOST', default='0.0.0.0')
 PORT = config('BIND_PORT', cast=int, default=8000)
 
 POSTGRES_DSN = config('POSTGRES_DSN', cast=DatabaseURL)
