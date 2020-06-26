@@ -19,8 +19,8 @@
           "interpolate",
             ["cubic-bezier", 0.3, 0.2, 0.5, 1],
             ["zoom"],
-            10, ["match", ["get", "ts_klass"], ["G1", "G2"], 0, 0.05],
-            18, ["match", ["get", "ts_klass"], ["G1", "G2"], 2, 4]
+            10, ["match", ["get", "ts_klass"], ["G1", "G2"], 0, 0.08],
+            18, ["match", ["get", "ts_klass"], ["G1", "G2"], 3, 6]
         ],
         "line-color": [
           "match",

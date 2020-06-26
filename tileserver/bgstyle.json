@@ -2,6 +2,10 @@
   "version": 8,
   "name": "Velo roads",
   "sources": {
+    "natural": {
+      "type": "vector",
+      "url": "http://app:8000/v1/tiles/bg.json"
+    },
     "roads": {
       "type": "vector",
       "url": "http://app:8000/v1/tiles/ts.json"
@@ -13,6 +17,28 @@
       "type": "background",
       "paint": {
         "background-color": "white"
+      }
+    },
+    {
+      "id": "natural",
+      "source": "natural",
+      "source-layer": "background",
+      "type": "fill",
+      "paint": {
+        "fill-color": [
+          "match",
+          ["get", "kkod"],
+          [1,2,3], "aliceblue",
+          4, "whitesmoke",
+          5, "honeydew",
+          6, "mintcream",
+          7, "white",
+          8, "ghostwhite",
+          11, "snow",
+          12, "white",
+          13, "white",
+          "orange"
+        ]
       }
     },
     {
