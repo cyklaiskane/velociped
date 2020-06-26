@@ -98,8 +98,8 @@ var map = L.map(element, {
   //zoom: 14,
   layers: [backgroundTiles],
 })
-.fitBounds(bounds)
-.setMaxBounds(bounds);
+.setMaxBounds(bounds)
+.fitBounds(bounds);
 
 
 const routing = new L.Routing.control({
