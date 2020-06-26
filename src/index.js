@@ -61,18 +61,19 @@ const vtStyles = {
   }
 };
 
-const bg = L.tileLayer('http://localhost:3000/styles/bg/{z}/{x}/{y}.png', {
+const backgroundTiles = L.tileLayer(typeof backgroundTilesUrl !== 'undefined' ? backgroundTilesUrl : 'http://localhost:3000/styles/bg/{z}/{x}/{y}.png', {});
 
-});
-
-const mvt = L.vectorGrid.protobuf(apiBaseUrl + '/v1/tiles/ts/{z}/{x}/{y}.pbf', {
+const tsMvt = L.vectorGrid.protobuf(apiBaseUrl + '/v1/tiles/ts/{z}/{x}/{y}.pbf', {
   renderFactory: L.canvas.tile,
   vectorTileLayerStyles: vtStyles,
 });
 
-const tsTiles = L.tileLayer('http://localhost:3000/styles/velo/{z}/{x}/{y}.png', {
-
+const bgMvt = L.vectorGrid.protobuf(apiBaseUrl + '/v1/tiles/bg/{z}/{x}/{y}.pbf', {
+  renderFactory: L.canvas.tile,
+  //vectorTileLayerStyles: vtStyles,
 });
+
+const tsTiles = L.tileLayer(typeof tsTilesUrl !== 'undefined' ? tsTilesUrl : 'http://localhost:3000/styles/velo/{z}/{x}/{y}.png', {});
 
 const wptHash = window.location.hash.match(/\d+.\d+/g);
 let initWaypoints = [];
@@ -87,11 +88,18 @@ if (wptHash && wptHash.length > 0 && wptHash.length % 2 === 0) {
   ];
 }
 
+const bounds = L.latLngBounds(
+  L.latLng(55.1232, 12.4374),
+  L.latLng(56.5354, 14.5959)
+);
+
 var map = L.map(element, {
-  center: [55.665193184436035, 13.355383872985841],
-  zoom: 14,
-  layers: [bg],
-});
+  //center: [55.665193184436035, 13.355383872985841],
+  //zoom: 14,
+  layers: [backgroundTiles],
+})
+.fitBounds(bounds)
+.setMaxBounds(bounds);
 
 
 const routing = new L.Routing.control({
@@ -113,12 +121,13 @@ const routing = new L.Routing.control({
 }).addTo(map);
 
 const baseMaps = {
-  bg: bg,
+  'Bakgrund': backgroundTiles,
+  'MVT bg': bgMvt,
 };
 
 const overlayMaps = {
-  mvt: mvt,
-  ts: tsTiles,
+  //'TS MVT': tsMvt,
+  'Trafiksäkerhetsklassning': tsTiles,
 };
 
 L.control.layers(baseMaps, overlayMaps, {
