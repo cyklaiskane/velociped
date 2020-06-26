@@ -3,7 +3,7 @@ import L from 'leaflet';
 
 export default L.Class.extend({
   options: {
-    serviceUrl: 'http://localhost:8000/v1/geocoder',
+    serviceUrl: '/v1/geocoder',
   },
 
   initialize: function(options) {
