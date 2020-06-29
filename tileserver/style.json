@@ -4,7 +4,7 @@
   "sources": {
     "roads": {
       "type": "vector",
-      "url": "http://app:8000/v1/tiles/ts.json"
+      "url": "http://cyklaiskane-app:8000/v1/tiles/ts.json"
     }
   },
   "layers": [

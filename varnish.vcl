@@ -1,7 +1,8 @@
 vcl 4.0;
 
 backend default {
-  .host = "tileserver:8000";
+  .host = "tileserver";
+  .port = "8000";
 }
 
 sub vcl_recv {
