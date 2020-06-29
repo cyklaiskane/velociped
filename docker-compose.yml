@@ -2,49 +2,28 @@ version: '3.7'
 
 
 services:
-  app:
-    image: velociped
+  cyklaiskane-app:
+    image: trivectortraffic/velociped
     depends_on:
       - db
     environment:
-      - BIND_HOST=0.0.0.0
-      - POSTGRES_DSN=postgres://velociped:foobar@db:5432/velociped
+      - POSTGRES_DSN=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
       - LM_CLIENT_ID
       - LM_CLIENT_SECRET
-    ports:
-      - 8008:8000
-    labels:
-      - "traefik.enable=true"
 
-      - "traefik.http.routers.cyklaiskane.rule=Host(`cyklaiskane.travelvu.io`)"
-      - "traefik.http.routers.cyklaiskane.entrypoints=https"
-      - "traefik.http.routers.cyklaiskane.tls=true"
-      - "traefik.http.services.cyklaiskane.loadbalancer.server.port=8000"
-
-
-  cache:
+  cyklaiskane-cache:
     image: varnish:stable
-    depends_on:
-      - tileserver
     environment:
       - VARNISH_SIZE=512M
-    ports:
-      - 3000:80
-    tmpfs:
-      - /var/lib/varnish:exec
-    volumes:
-      - ./varnish.vcl:/etc/varnish/default.vcl:ro
-
+    #volumes:
+    #  - type: tmpfs
+    #    target: /var/lib/varnish
+    #    tmpfs:
+    #      exec: true
+    #      size: 134217728
 
   tileserver:
     image: trivectortraffic/tileserver-gl:v3.0.0
-    depends_on:
-      - app
-    ports:
-      - 3001:8000
-    volumes:
-      - ./tileserver:/data
-
 
   db:
     image: pgrouting/pgrouting:12-3.0-2.6.3
@@ -53,29 +32,11 @@ services:
       - POSTGRES_PASSWORD
       - POSTGRES_DB
     volumes:
-      - db-data:/var/lib/postgresql/data:delegated
-      - ./data:/data
+      - db-data:/var/lib/postgresql/data:cached
     ports:
       - 5433:5432
 
-#  admin:
-#    image: dpage/pgadmin4
-#    environment:
-#      - PGADMIN_DEFAULT_EMAIL
-#      - PGADMIN_DEFAULT_PASSWORD
-#    volumes:
-#      - pgadmin-data:/var/lib/pgadmin
-#    ports:
-#      - 5050:80
 
 
 volumes:
   db-data: {}
-  pgadmin-data: {}
-
-
-networks:
-  default:
-    driver: bridge
-  travelvu_internal:
-    external: true

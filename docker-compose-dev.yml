@@ -1,0 +1,42 @@
+version: '3.7'
+
+services:
+  cyklaiskane-app:
+    ports:
+      - 8008:8000
+    volumes:
+      - ./api:/app/api
+      - ./assets:/app/assets
+      - ./templates:/app/templates
+
+  cyklaiskane-cache:
+    ports:
+      - 3003:80
+    volumes:
+      - ./varnish.vcl:/etc/varnish/default.vcl:ro
+
+
+
+  tileserver:
+    command: ["-p", "8000", "-V"]
+    ports:
+      - 3000:8000
+    volumes:
+      - ./tileserver:/data
+
+  db:
+    volumes:
+      - ./data:/data
+
+#  admin:
+#    image: dpage/pgadmin4
+#    environment:
+#      - PGADMIN_DEFAULT_EMAIL
+#      - PGADMIN_DEFAULT_PASSWORD
+#    volumes:
+#      - pgadmin-data:/var/lib/pgadmin
+#    ports:
+#      - 5050:80
+
+volumes:
+  pgadmin-data: {}
