@@ -1,7 +1,7 @@
 .PHONY: prod deploy run
 
 prod:
-	docker build -t velociped .
+	docker build -t velociped -t trivectortraffic/velociped .
 
 run:
 	docker run -it --rm -e POSTGRES_DSN='postgres://velociped:foobar@db/velociped' --network=velociped_default -p 8008:8000 velociped
