@@ -12,7 +12,7 @@ from api.v1.utils import find_route
 router = APIRouter()
 
 
-@router.post('/')
+@router.post('')
 async def route(query: RouteQuery, request: Request) -> Union[List, JSONResponse]:
     routes = []
 
