@@ -3,8 +3,8 @@ import L from 'leaflet';
 
 export default L.Control.extend({
   onAdd: function (map) {
-    let container = L.DomUtil.create('div', 'leaflet-bar');
-    let action = L.DomUtil.create('a', 'gpx-export', container);
+    const container = L.DomUtil.create('div', 'leaflet-bar');
+    const action = L.DomUtil.create('a', 'gpx-export', container);
 
     action.title = 'Exportera som GPX';
     action.text = 'GPX';

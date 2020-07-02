@@ -5,6 +5,7 @@ services:
     ports:
       - 8008:8000
     volumes:
+      - ./profiles.json:/app/profiles.json:ro
       - ./api:/app/api
       - ./assets:/app/assets
       - ./templates:/app/templates

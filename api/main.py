@@ -20,6 +20,7 @@ from api.config import (
 )
 from api.database import db
 from api.security import oauth
+from api.v1.utils.route import profiles
 
 app = FastAPI()
 
@@ -61,6 +62,8 @@ async def ping() -> str:
 @app.on_event('startup')
 async def startup() -> None:
     await db.connect()
+
+    profiles.load('profiles.json')
 
     oauth.register(
         'lm',

@@ -1,5 +1,6 @@
 import L from 'leaflet';
 
+import state from './state.js';
 
 export default L.Class.extend({
   options: {
@@ -13,9 +14,9 @@ export default L.Class.extend({
   route: function(waypoints, callback, context, options) {
     let query = {
       waypoints: waypoints.map(waypoint => waypoint.latLng),
+      profile_name: state.profile,
     }
-    const hash = waypoints.map(waypoint => `${waypoint.latLng.lat},${waypoint.latLng.lng}`).join(';');
-    window.location.hash = hash;
+    state.waypoints = waypoints;
 
     fetch(this.options.serviceUrl + '/v1/route', {
       method: 'POST',

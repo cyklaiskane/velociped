@@ -16,6 +16,7 @@ class LatLng(BaseModel):
 
 class RouteQuery(BaseModel):
     waypoints: List[LatLng]
+    profile_name: Optional[str] = None
 
 
 class Segment(BaseModel):
@@ -31,6 +32,40 @@ class Route(BaseModel):
     length: float = 0.0
     duration: float = 0.0
     segments: List[Segment] = []
+
+
+class RouteProfileSpeeds(BaseModel):
+    C1: int
+    C2: int
+    C3: int
+    B1: int
+    B2: int
+    B3: int
+    B4: int
+    B5: int
+    G1: int
+    G2: int
+
+
+class RouteProfileWeights(BaseModel):
+    C1: float
+    C2: float
+    C3: float
+    B1: float
+    B2: float
+    B3: float
+    B4: float
+    B5: float
+    G1: float
+    G2: float
+
+
+class RouteProfile(BaseModel):
+    name: str
+    label: str
+    description: Optional[str]
+    speeds: RouteProfileSpeeds
+    weights: RouteProfileWeights
 
 
 class Token(BaseModel):

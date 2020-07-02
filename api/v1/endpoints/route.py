@@ -1,13 +1,13 @@
 import asyncio
 import logging
-from typing import List, Union
+from typing import List, Union, Optional
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from api.schemas import Route, RouteQuery, Segment
+from api.schemas import Route, RouteQuery, Segment, RouteProfile
 from api.utils import pairwise
-from api.v1.utils import find_route
+from api.v1.utils.route import profiles, find_route
 
 router = APIRouter()
 
@@ -19,10 +19,8 @@ async def route(query: RouteQuery, request: Request) -> Union[List, JSONResponse
     try:
         results = await asyncio.gather(
             *[
-                do_route(query.waypoints, name, profile)
-                for name, profile in [
-                    ('Lämpligast', 1)
-                ]  # [('Lämpligast', 1), ('Snabbast', 0), ('Säkrast', 2)]
+                do_route(query.waypoints, profile)
+                for profile in [profiles.get(query.profile_name)]
             ]
         )
     except Exception as e:
@@ -33,8 +31,8 @@ async def route(query: RouteQuery, request: Request) -> Union[List, JSONResponse
     return routes
 
 
-async def do_route(waypoints: List, name: str, profile: int) -> Route:
-    route = Route(name=name)
+async def do_route(waypoints: List, profile: RouteProfile) -> Route:
+    route = Route(name=profile.label)
 
     results = await asyncio.gather(
         *[
@@ -57,3 +55,9 @@ async def do_route(waypoints: List, name: str, profile: int) -> Route:
             route.segments.append(segment)
 
     return route
+
+
+@router.get('/profiles')
+async def get_profiles() -> List:
+    print(profiles.store)
+    return [profile.dict(include={'name', 'label', 'description'}) for profile in profiles.store]

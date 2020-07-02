@@ -13,3 +13,11 @@ html, body {
 .gpx-export {
   cursor: pointer;
 }
+
+.profile-selector-container {
+  padding: 6px;
+}
+
+.profile-selector {
+  width: 100%;
+}

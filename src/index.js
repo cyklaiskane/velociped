@@ -28,6 +28,9 @@ import Router from './router.js';
 import Line from './line.js';
 import Geocoder from './geocoder.js';
 import GpxControl from './gpx-control.js';
+import ProfileControl from './profile-control.js';
+
+import state from './state.js';
 
 
 const apiBaseUrl = process.env.API_BASE_URL;
@@ -75,19 +78,6 @@ const bgMvt = L.vectorGrid.protobuf(apiBaseUrl + '/v1/tiles/bg/{z}/{x}/{y}.pbf',
 
 const tsTiles = L.tileLayer(typeof tsTilesUrl !== 'undefined' ? tsTilesUrl : 'http://localhost:3000/styles/velo/{z}/{x}/{y}.png', {});
 
-const wptHash = window.location.hash.match(/\d+.\d+/g);
-let initWaypoints = [];
-if (wptHash && wptHash.length > 0 && wptHash.length % 2 === 0) {
-  for (let i = 1; i < wptHash.length; i += 2) {
-    initWaypoints.push(L.latLng(wptHash[i-1], wptHash[i]));
-  }
-} else {
-  initWaypoints = [
-    //L.latLng(55.665193184436035, 13.355383872985841),
-    //L.latLng(55.66727479751119, 13.340320587158205)
-  ];
-}
-
 const bounds = L.latLngBounds(
   L.latLng(55.1232, 12.4374),
   L.latLng(56.5354, 14.5959)
@@ -103,7 +93,7 @@ var map = L.map(element, {
 
 
 const routing = new L.Routing.control({
-  waypoints: initWaypoints,
+  waypoints: state.waypoints,
   router: new Router({serviceUrl: apiBaseUrl}),
   routeLine: function(route, options) {
     return new Line(route, options, tsStyles);
@@ -163,5 +153,5 @@ map.on('contextmenu', function(e) {
     });
 });
 
-
+new ProfileControl({position: 'topright', baseUrl: apiBaseUrl, routing: routing}).addTo(map);
 new GpxControl({position: 'bottomright', routing: routing}).addTo(map);

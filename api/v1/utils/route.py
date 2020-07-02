@@ -1,24 +1,41 @@
 import logging
-from typing import Iterable
+import json
+from typing import Iterable, List, Optional
 
 from api.database import db
-from api.schemas import LatLng
+from api.schemas import LatLng, RouteProfile
 
 
-def weights(n: int) -> list:
-    names = ['C1', 'C2', 'C3', 'B1', 'B2', 'B3', 'B4', 'B5', 'G1', 'G2']
-    speeds = [18, 15, 18, 18, 18, 18, 18, 1, 15, 13]
-    weights = [
-        [1.0, 1.0, 1.0, 1.0, 1.0, 1.1, 1.1, -1, 1.2, 1.2],
-        [1.0, 1.1, 1.1, 1.2, 1.3, 1.5, 1.9, -1, 1.4, 1.6],
-        [1.0, 1.1, 1.1, 1.2, 1.3, 8.0, 10.0, -1, 1.4, 1.6],
-    ]
+class ProfileStore():
+    store: List[RouteProfile] = []
 
-    tmp = [(n, w * 3.6 / s, w) for n, w, s in zip(names, weights[n], speeds)]
+    def load(self, filename: str) -> None:
+        items = []
+        with open(filename, 'r') as f:
+            items = json.load(f)
+
+        for item in items:
+            self.store.append(RouteProfile(**item))
+
+    def get(self, name: Optional[str] = None) -> RouteProfile:
+        for profile in self.store:
+            if name == profile.name:
+                return profile
+        return self.store[0]
+
+
+profiles = ProfileStore()
+
+
+def weights(profile: RouteProfile) -> list:
+    speeds = profile.speeds.dict()
+    weights = profile.weights.dict()
+
+    tmp = [(klass, weight * 3.6 / speeds[klass], weight) for klass, weight in weights.items()]
     return tmp
 
 
-async def find_route(start: LatLng, dest: LatLng, profile: int = 1) -> Iterable:
+async def find_route(start: LatLng, dest: LatLng, profile: RouteProfile) -> Iterable:
     waypoints_sql = []
     for i, waypoint in enumerate([start, dest]):
         waypoints_sql.append(
