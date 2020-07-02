@@ -7,3 +7,4 @@
 !poetry.lock
 !pyproject.toml
 !webpack.*.js
+!profiles.json
