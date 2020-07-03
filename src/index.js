@@ -5,9 +5,6 @@ import 'leaflet-routing-machine';
 import 'leaflet-control-geocoder';
 import 'leaflet.icon.glyph';
 
-import { saveAs } from 'file-saver';
-import { buildGPX, BaseBuilder } from 'gpx-builder';
-
 import './style.css';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
