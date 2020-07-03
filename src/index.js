@@ -26,6 +26,7 @@ import Line from './line.js';
 import Geocoder from './geocoder.js';
 import GpxControl from './gpx-control.js';
 import ProfileControl from './profile-control.js';
+import InfoControl from './info-control.js';
 
 import tsStyles from './ts-styles.js';
 import state from './state.js';
@@ -38,9 +39,7 @@ document.body.appendChild(element);
 
 const vtStyles = {
   roads: function(properties, zoom, geometryDimension) {
-    let style = tsStyles[properties.ts_klass] || {color: 'grey', opacity: 1, weight: 3};
-    //style.weight = style.weight * zoom / 18;
-    //console.log(style.weight * zoom / 18);
+    const style = tsStyles[properties.ts_klass] || {color: 'grey', opacity: 1, weight: 3};
     return {
       color: style.color,
       opacity: 0.7,
@@ -106,7 +105,7 @@ const overlayMaps = {
 };
 
 L.control.layers(baseMaps, overlayMaps, {
-  position: 'bottomleft',
+  position: 'bottomright',
   hideSingleBase: true,
 }).addTo(map);
 
@@ -138,5 +137,6 @@ map.on('contextmenu', function(e) {
     });
 });
 
+new InfoControl({position: 'topleft'}).addTo(map);
 new ProfileControl({position: 'topright', baseUrl: apiBaseUrl, routing: routing}).addTo(map);
-new GpxControl({position: 'bottomright', routing: routing}).addTo(map);
+new GpxControl({position: 'bottomleft', routing: routing}).addTo(map);

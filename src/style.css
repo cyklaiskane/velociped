@@ -10,8 +10,40 @@ html, body {
   height: 100%;
 }
 
-.gpx-export {
+.gpx-export, .info-button {
   cursor: pointer;
+}
+
+.info-text-container {
+  position: fixed;
+  top: 10px;
+  left: 53px;
+  max-width: 50%;
+  max-height: 80%;
+  overflow: auto;
+  padding: 10px;
+  z-index: 900;
+  border: 2px solid rgba(0,0,0,0.2);
+  border-radius: 4px;
+  background-clip: padding-box;
+  background: white;
+}
+
+.info-text {
+  font: 14px/1.5 "Helvetica Neue", Helvetica, sans-serif;
+  padding: 10px;
+}
+
+.info-text dl dt {
+  font-weight: bold;
+}
+
+.info-text button {
+  float: right;
+}
+
+.info-text-hide {
+  display: none;
 }
 
 .profile-selector-container {
