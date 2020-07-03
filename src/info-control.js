@@ -16,7 +16,6 @@ export default L.Control.extend({
 
     const classList = text.querySelector('.ts-classes');
     for (const [name, style] of Object.entries(tsStyles)) {
-      console.log(style);
       const item = L.DomUtil.create('li', 'ts-class', classList);
       item.innerText = name + ' ' + style.description;
       item.style.color = style.color;
