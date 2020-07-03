@@ -8,15 +8,23 @@ export default L.Class.extend({
   },
 
   initialize: function(options) {
-      L.setOptions(this, options);
+      L.Util.setOptions(this, options);
+
+      const spinner = L.DomUtil.create('div', 'spinner');
+      this.spinner = spinner;
+      document.body.appendChild(spinner);
   },
 
   route: function(waypoints, callback, context, options) {
-    let query = {
+    const query = {
       waypoints: waypoints.map(waypoint => waypoint.latLng),
       profile_name: state.profile,
     }
+    const spinner = this.spinner;
+
     state.waypoints = waypoints;
+    spinner.style.visibility = 'visible';
+    spinner.style.opacity = 1;
 
     fetch(this.options.serviceUrl + '/v1/route', {
       method: 'POST',
@@ -52,6 +60,10 @@ export default L.Class.extend({
     .catch(error => {
       console.log(error);
       callback.call(context, error, null);
+    })
+    .finally(() => {
+      spinner.style.visibility = 'hidden';
+      spinner.style.opacity = 0;
     });
   },
 });
