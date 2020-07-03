@@ -86,7 +86,14 @@ async def shutdown() -> None:
 def main() -> None:
     import uvicorn
 
-    uvicorn.run('api.main:app', host=HOST, port=PORT, reload=True, log_level='debug')
+    uvicorn.run(
+        'api.main:app',
+        host=HOST,
+        port=PORT,
+        reload=True,
+        forwarded_allow_ips='*',
+        log_level='debug'
+    )
 
 
 if __name__ == '__main__':
