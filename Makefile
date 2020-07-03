@@ -1,14 +1,18 @@
-.PHONY: prod deploy run
+.PHONY: prod deploy run logs push
 
 prod:
 	docker build -t velociped -t trivectortraffic/velociped .
 
 run:
-	docker run -it --rm -e POSTGRES_DSN='postgres://velociped:foobar@db/velociped' --network=velociped_default -p 8008:8000 velociped
+	docker-compose -f docker-compose.yml -f docker-compose-dev.yml up --remove-orphans -d db cyklaiskane-app
+	sleep 5
+	docker-compose -f docker-compose.yml -f docker-compose-dev.yml up -d tileserver
 
-velociped.tar: prod
-	docker image save -o velociped.tar velociped
+logs:
+	docker-compose -f docker-compose.yml -f docker-compose-dev.yml logs -ft --tail=10
 
-deploy: velociped.tar .env docker-compose-deploy.yml
-	rsync -avhP velociped.tar .env docker-compose-deploy.yml debian@docker-host-02:velociped/
-	ssh debian@docker-host-02 "docker image load -i velociped/velociped.tar; cd velociped; docker-compose -f docker-compose-deploy.yml up -d"
+deploy:
+	./deploy.sh
+
+push:
+	docker push trivectortraffic/velociped
