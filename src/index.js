@@ -27,6 +27,7 @@ import Geocoder from './geocoder.js';
 import GpxControl from './gpx-control.js';
 import ProfileControl from './profile-control.js';
 
+import tsStyles from './ts-styles.js';
 import state from './state.js';
 
 
@@ -34,19 +35,6 @@ const apiBaseUrl = process.env.API_BASE_URL;
 const element = document.createElement('div');
 element.id = 'map';
 document.body.appendChild(element);
-
-const tsStyles = {
-  C1: {color: '#5e96a8', opacity: 1, weight: 5},
-  C2: {color: '#C49949', opacity: 1, weight: 5},
-  C3: {color: '#5e96a8', opacity: 1, weight: 5},
-  B1: {color: '#61b9bd', opacity: 1, weight: 4},
-  B2: {color: '#b5dfe1', opacity: 1, weight: 4},
-  B3: {color: '#ff8b9e', opacity: 1, weight: 4},
-  B4: {color: '#a7616d', opacity: 1, weight: 4},
-  B5: {color: '#808080', opacity: 1, weight: 4},
-  G1: {color: '#c4b79f', opacity: 1, weight: 4},
-  G2: {color: '#c4b79f', opacity: 1, weight: 4},
-}
 
 const vtStyles = {
   roads: function(properties, zoom, geometryDimension) {
