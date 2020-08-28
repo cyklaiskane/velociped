@@ -31,7 +31,7 @@ async def address_search(text: str, request: Request) -> List:
     )
     r.raise_for_status()
     refs = AdressReferensResponse(r.json()).refs
-    ids = [ref.objektidentitet for ref in refs]
+    ids = [str(ref.objektidentitet) for ref in refs]
     r = await oauth.lm.post(
         '', json=ids, params={'includeData': 'basinformation'}, request=request
     )
