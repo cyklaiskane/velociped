@@ -1,13 +1,13 @@
 import asyncio
 import logging
-from typing import List, Union, Optional
+from typing import List, Union
 
 from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse
 
-from api.schemas import Route, RouteQuery, Segment, RouteProfile
+from api.schemas import Route, RouteProfile, RouteQuery, Segment
 from api.utils import pairwise
-from api.v1.utils.route import profiles, find_route
+from api.v1.utils.route import find_route, profiles
 
 router = APIRouter()
 
@@ -60,4 +60,7 @@ async def do_route(waypoints: List, profile: RouteProfile) -> Route:
 @router.get('/profiles')
 async def get_profiles() -> List:
     print(profiles.store)
-    return [profile.dict(include={'name', 'label', 'description'}) for profile in profiles.store]
+    return [
+        profile.dict(include={'name', 'label', 'description'})
+        for profile in profiles.store
+    ]

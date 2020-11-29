@@ -5,7 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.cors import CORSMiddleware
-from tenacity import retry, wait_fixed, stop_after_attempt
+from tenacity import retry, stop_after_attempt, wait_fixed
 
 from api import v1
 from api.config import (
@@ -48,11 +48,10 @@ templates = Jinja2Templates(directory='templates')
 
 @app.get('/')
 async def index(request: Request) -> Any:
-    return templates.TemplateResponse('index.html', {
-        'request': request,
-        'tsUrl': TILES_TS_URL,
-        'bgUrl': TILES_BG_URL,
-    })
+    return templates.TemplateResponse(
+        'index.html',
+        {'request': request, 'tsUrl': TILES_TS_URL, 'bgUrl': TILES_BG_URL,},
+    )
 
 
 @app.get('/ping')
@@ -62,17 +61,13 @@ async def ping() -> str:
 
 @app.on_event('startup')
 async def startup() -> None:
-    @retry(
-        stop=stop_after_attempt(5),
-        wait=wait_fixed(2)
-    )
+    @retry(stop=stop_after_attempt(5), wait=wait_fixed(2))
     async def startup_db() -> None:
         logging.info('Connecting to database')
         await init_extensions()
         await db.connect()
 
     await startup_db()
-
 
     profiles.load('profiles.json')
 
@@ -103,7 +98,7 @@ def main() -> None:
         port=PORT,
         reload=True,
         forwarded_allow_ips='*',
-        log_level='debug'
+        log_level='debug',
     )
 
 

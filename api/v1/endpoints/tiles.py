@@ -1,10 +1,9 @@
 import logging
 
-from fastapi import APIRouter, Request, Response, HTTPException
+from devtools import debug
+from fastapi import APIRouter, HTTPException, Request, Response
 
 from api.database import db
-
-from devtools import debug
 
 router = APIRouter()
 
@@ -44,7 +43,7 @@ layers = {
 
             )
             SELECT ST_AsMVT(mvtgeom.*, 'roads', 4096, 'geom') AS tile FROM mvtgeom
-        '''
+        ''',
     },
     'bg': {
         'name': 'background',
@@ -66,8 +65,8 @@ layers = {
                     ST_TileEnvelope({z}, {x}, {y}) && bg.geom
             )
             SELECT ST_AsMVT(mvtgeom.*, 'background', 4096, 'geom') AS tile FROM mvtgeom
-        '''
-    }
+        ''',
+    },
 }
 
 

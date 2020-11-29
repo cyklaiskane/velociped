@@ -1,12 +1,12 @@
-import logging
 import json
+import logging
 from typing import Iterable, List, Optional
 
 from api.database import db
 from api.schemas import LatLng, RouteProfile
 
 
-class ProfileStore():
+class ProfileStore:
     store: List[RouteProfile] = []
 
     def load(self, filename: str) -> None:
@@ -31,7 +31,10 @@ def weights(profile: RouteProfile) -> list:
     speeds = profile.speeds.dict()
     weights = profile.weights.dict()
 
-    tmp = [(klass, weight * 3.6 / speeds[klass], weight) for klass, weight in weights.items()]
+    tmp = [
+        (klass, weight * 3.6 / speeds[klass], weight)
+        for klass, weight in weights.items()
+    ]
     return tmp
 
 

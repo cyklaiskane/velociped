@@ -5,7 +5,7 @@ from typing import Iterable
 
 from osgeo import gdal, ogr, osr
 
-from api.config import GEODATA_URL, GEODATA_LAYER, GEODATA_TABLE, POSTGRES_DSN
+from api.config import GEODATA_LAYER, GEODATA_TABLE, GEODATA_URL, POSTGRES_DSN
 
 
 def pairwise(iterable: Iterable) -> Iterable:
@@ -26,7 +26,9 @@ def update_geodata() -> None:
     src_ds = gdal.OpenEx(
         GEODATA_URL,
         0,
-        open_options=['EXPOSE_GML_ID=NO'] if GEODATA_URL.lower().startswith('wfs:') else []
+        open_options=['EXPOSE_GML_ID=NO']
+        if GEODATA_URL.lower().startswith('wfs:')
+        else [],
     )
     src_layer = src_ds.GetLayerByName(GEODATA_LAYER)
     src_layer.SetSpatialFilterRect(396181.4, 6169076.0, 396994.0, 6169484.3)
@@ -43,7 +45,9 @@ def update_geodata() -> None:
     }
     src_fields = [item.GetName() for item in src_layer.schema]
     src_ignore = [name for name in src_fields if name.lower() not in schema]
-    common_fields = [(name, name.lower()) for name in src_fields if name.lower() in schema]
+    common_fields = [
+        (name, name.lower()) for name in src_fields if name.lower() in schema
+    ]
 
     src_layer.SetIgnoredFields(src_ignore)
     src_len = len(src_layer)
@@ -51,7 +55,9 @@ def update_geodata() -> None:
 
     srs = osr.SpatialReference()
     srs.ImportFromEPSG(3006)
-    dst_ds = ogr.Open(f'PG:host={POSTGRES_DSN.hostname} dbname={POSTGRES_DSN.database} user={POSTGRES_DSN.username} password={POSTGRES_DSN.password}')
+    dst_ds = ogr.Open(
+        f'PG:host={POSTGRES_DSN.hostname} dbname={POSTGRES_DSN.database} user={POSTGRES_DSN.username} password={POSTGRES_DSN.password}'
+    )
     dst_ds.StartTransaction()
     dst_layer = dst_ds.CreateLayer(
         dst_table,
@@ -59,20 +65,21 @@ def update_geodata() -> None:
         geom_type=ogr.wkbLineString,
         options=[
             'GEOMETRY_NAME=geom',
-            'DIM=2'
+            'DIM=2',
             'OVERWRITE=YES',
             'SPATIAL_INDEX=SPGIST',
-        ]
+        ],
     )
 
     for name, dtype in schema.items():
         dst_layer.CreateField(ogr.FieldDefn(name, dtype))
 
-
     logging.info(f'Copying {src_len} features from geodata source {GEODATA_URL}')
     for i, src_feature in enumerate(src_layer, 1):
         if i % step == 1:
-            logging.info(f'Feature copy progress {i:8d} / {src_len}, {100*i/src_len:5.2f} %')
+            logging.info(
+                f'Feature copy progress {i:8d} / {src_len}, {100*i/src_len:5.2f} %'
+            )
         dst_feature = ogr.Feature(dst_layer.GetLayerDefn())
         for src_field, dst_field in common_fields:
             dst_feature[dst_field] = src_feature[src_field]
