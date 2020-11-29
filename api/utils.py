@@ -14,7 +14,7 @@ def pairwise(iterable: Iterable) -> Iterable:
     return zip(a, b)
 
 
-def update_geodata():
+def update_geodata() -> None:
     now = datetime.utcnow().strftime('%Y_%m_%d_%H%M%S_%f')
     dst_table = f'{GEODATA_TABLE}_{now}'
     pgr_table = f'{dst_table}_vertices_pgr'

@@ -66,7 +66,7 @@ async def startup() -> None:
         stop=stop_after_attempt(5),
         wait=wait_fixed(2)
     )
-    async def startup_db():
+    async def startup_db() -> None:
         logging.info('Connecting to database')
         await init_extensions()
         await db.connect()

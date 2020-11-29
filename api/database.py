@@ -31,7 +31,7 @@ async def init_con(con: Connection) -> None:
     )
 
 
-async def init_extensions():
+async def init_extensions() -> None:
     con = await connect(str(POSTGRES_DSN))
     checks = [
         ('SELECT version() as version', None),
