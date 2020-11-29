@@ -12,6 +12,11 @@ TILES_TS_URL = config('TILES_TS_URL', default='http://localhost:3000/styles/velo
 
 POSTGRES_DSN = config('POSTGRES_DSN', cast=DatabaseURL)
 
+GEODATA_URL = config('GEODATA_URL')
+GEODATA_LAYER = config('GEODATA_LAYER')
+
+GEODATA_TABLE = 'cyklaiskane'
+
 CORS_ORIGINS = config('CORS_ORIGINS', cast=CommaSeparatedStrings, default='*')
 
 LM_CLIENT_ID = config('LM_CLIENT_ID', cast=Secret)
