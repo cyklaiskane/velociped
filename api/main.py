@@ -5,6 +5,7 @@ from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from starlette.middleware.cors import CORSMiddleware
+from tenacity import retry, wait_fixed, stop_after_attempt
 
 from api import v1
 from api.config import (
@@ -18,7 +19,7 @@ from api.config import (
     TILES_BG_URL,
     TILES_TS_URL,
 )
-from api.database import db
+from api.database import db, init_extensions
 from api.security import oauth
 from api.v1.utils.route import profiles
 
@@ -61,7 +62,17 @@ async def ping() -> str:
 
 @app.on_event('startup')
 async def startup() -> None:
-    await db.connect()
+    @retry(
+        stop=stop_after_attempt(5),
+        wait=wait_fixed(2)
+    )
+    async def startup_db():
+        logging.info('Connecting to database')
+        await init_extensions()
+        await db.connect()
+
+    await startup_db()
+
 
     profiles.load('profiles.json')
 

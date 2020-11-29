@@ -3,7 +3,8 @@ from typing import Any, Optional, Type
 
 import shapely.geometry
 import shapely.wkb
-from asyncpg import Connection
+from asyncpg import Connection, connect
+from asyncpg.exceptions import UndefinedFunctionError
 from databases import Database
 from shapely.geometry.base import BaseGeometry
 
@@ -28,6 +29,21 @@ async def init_con(con: Connection) -> None:
     await con.set_type_codec(
         'geometry', encoder=encode_geometry, decoder=decode_geometry, format='binary',
     )
+
+
+async def init_extensions():
+    con = await connect(str(POSTGRES_DSN))
+    checks = [
+        ('SELECT version() as version', None),
+        ('SELECT postgis_version() as version', 'CREATE EXTENSION postgis'),
+        ('SELECT pgr_version() as version', 'CREATE EXTENSION pgrouting'),
+    ]
+    for check_sql, init_sql in checks:
+        try:
+            result = await con.fetchval(query=check_sql)
+            logging.info(result)
+        except UndefinedFunctionError:
+            await con.execute(init_sql)
 
 
 db = Database(POSTGRES_DSN, init=init_con)
