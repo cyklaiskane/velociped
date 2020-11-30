@@ -24,6 +24,7 @@ def update_geodata() -> None:
     gdal.UseExceptions()
     gdal.SetConfigOption('OGR_WFS_PAGING_ALLOWED', 'NO')
 
+    logging.info(f'Opening geodata source {GEODATA_URL}')
     src_ds = gdal.OpenEx(
         GEODATA_URL,
         0,
