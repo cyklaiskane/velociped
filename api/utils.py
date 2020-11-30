@@ -18,6 +18,7 @@ def update_geodata() -> None:
     now = datetime.utcnow().strftime('%Y_%m_%d_%H%M%S_%f')
     dst_table = f'{GEODATA_TABLE}_{now}'
     pgr_table = f'{dst_table}_vertices_pgr'
+    restr_table = f'{dst_table}_restrictions'
     logging.getLogger().setLevel('DEBUG')
 
     gdal.UseExceptions()
@@ -106,6 +107,25 @@ def update_geodata() -> None:
     if status != 'OK':
         dst_ds.RollbackTransaction()
         raise Exception('Failed to build PGR topology')
+    logging.info('Building restrictions')
+    restr_sql = f'''
+        CREATE TABLE {restr_table} (to_cost, target_id, via_path) AS
+        WITH grades AS (
+          SELECT
+            objectid,
+            konst_190,
+            ARRAY[from_vertex, to_vertex] as vertices
+          FROM {dst_table} WHERE konst_190 IS NOT NULL
+        )
+        SELECT
+          1000::float8 to_cost,
+          a.objectid::int4 target_id,
+          b.objectid::text via_path
+        FROM grades a, grades b
+        WHERE a.konst_190 != b.konst_190 AND a.vertices && b.vertices;
+    '''
+    dst_ds.ExecuteSQL(restr_sql)
+    dst_ds.ExecuteSQL(f'CREATE INDEX ON {restr_table} (target_id)')
     dst_ds.CommitTransaction()
 
     logging.info('Replacing geodata tables')
@@ -114,6 +134,10 @@ def update_geodata() -> None:
     dst_ds.ExecuteSQL(f'ALTER TABLE {dst_table} RENAME TO {GEODATA_TABLE}')
     dst_ds.ExecuteSQL(f'DROP TABLE IF EXISTS {GEODATA_TABLE}_vertices_pgr CASCADE')
     dst_ds.ExecuteSQL(f'ALTER TABLE {pgr_table} RENAME TO {GEODATA_TABLE}_vertices_pgr')
+    dst_ds.ExecuteSQL(f'DROP TABLE IF EXISTS {GEODATA_TABLE}_restrictions CASCADE')
+    dst_ds.ExecuteSQL(
+        f'ALTER TABLE {restr_table} RENAME TO {GEODATA_TABLE}_restrictions'
+    )
     dst_ds.CommitTransaction()
 
     logging.info('Cleaning up database')
