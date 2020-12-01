@@ -21,6 +21,7 @@ class RouteQuery(BaseModel):
 
 class Segment(BaseModel):
     coords: List[Tuple[float, float]]
+    danger_coords: List[Tuple[float, float]]
     name: Optional[str]
     ts_klass: str
     length: float

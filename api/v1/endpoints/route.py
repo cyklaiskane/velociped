@@ -43,8 +43,14 @@ async def do_route(waypoints: List, profile: RouteProfile) -> Route:
 
     for result in results:
         for row in result:
+            danger_coords = []
+            if row['danger_geom'] is not None:
+                danger_coords.extend(
+                    [point.coords[0] for point in row['danger_geom'].geoms]
+                )
             segment = Segment(
                 coords=row['geom'].coords[:],
+                danger_coords=danger_coords,
                 name=row['name'],
                 ts_klass=row['ts_klass'],
                 length=row['length'],

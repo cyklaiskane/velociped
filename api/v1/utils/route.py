@@ -122,6 +122,7 @@ async def find_route(start: LatLng, dest: LatLng, profile: RouteProfile) -> Iter
                 to_point.id as to_point_id,
                 to_point.fraction as to_fraction,
                 route.*,
+                lag(route.id2) over () as from_objectid,
                 lead(route.id1) over () as route_to_vertex,
                 (
                     lag(ts_klass) OVER () IS DISTINCT FROM ts_klass
@@ -176,10 +177,21 @@ async def find_route(start: LatLng, dest: LatLng, profile: RouteProfile) -> Iter
             part,
             ts_klass,
             name,
-            SUM(length) as length,
+            SUM(length) * SUM(duration - danger_cost) / SUM(duration) as length,
+            --SUM(length) as length,
             SUM(duration) as duration,
+            ST_Transform(ST_Collect(danger_geom), 4326) as danger_geom,
             ST_Transform(ST_MakeLine(geom ORDER BY seq), 4326) as geom
-        FROM (SELECT *, SUM(part_start) OVER (ORDER BY seq) part FROM parts) _
+        FROM (
+          SELECT
+            parts.*,
+            coalesce(danger.to_cost, 0) as danger_cost,
+            v.the_geom as danger_geom,
+            SUM(part_start) OVER (ORDER BY seq) part
+          FROM parts
+          LEFT OUTER JOIN cyklaiskane_restrictions danger ON danger.target_id = parts.id2 AND danger.via_path = parts.from_objectid::text
+          LEFT OUTER JOIN cyklaiskane_vertices_pgr v ON danger.vertex_id = v.id
+        ) _
         GROUP BY part, ts_klass, name
         ORDER BY part
     '''
