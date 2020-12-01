@@ -38,7 +38,7 @@ ENV PIP_DEFAULT_TIMEOUT=100 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1
 
-RUN apk add --no-cache build-base libressl-dev libffi-dev gcc musl-dev \
+RUN apk add --no-cache build-base libressl-dev libffi-dev gcc musl-dev gdal-dev \
       python3-dev libxml2-dev libxslt-dev postgresql-dev geos-dev proj-dev proj-util
 
 RUN pip install poetry
@@ -60,7 +60,7 @@ RUN set -euxo pipefail; \
 #
 FROM base as final
 
-RUN apk add --no-cache libffi libpq geos proj-util
+RUN apk add --no-cache libffi libpq geos proj-util gdal
 
 COPY --from=builder /venv /venv
 COPY . ./
