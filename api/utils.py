@@ -42,6 +42,8 @@ def update_geodata() -> None:
         'namn_130': ogr.OFTString,
         'klass_181': ogr.OFTInteger,
         'konst_190': ogr.OFTString,
+        'f_forbjuden_fardriktning': ogr.OFTInteger,
+        'b_forbjuden_fardriktning': ogr.OFTInteger,
         'shape_length': ogr.OFTReal,
         'from_vertex': ogr.OFTInteger,
         'to_vertex': ogr.OFTInteger,
