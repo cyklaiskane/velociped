@@ -22,6 +22,7 @@ def update_geodata() -> None:
     logging.getLogger().setLevel('DEBUG')
 
     gdal.UseExceptions()
+    ogr.UseExceptions()
     gdal.SetConfigOption('OGR_WFS_PAGING_ALLOWED', 'NO')
 
     logging.info(f'Opening geodata source {GEODATA_URL}')
