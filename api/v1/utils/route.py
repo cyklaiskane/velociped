@@ -163,7 +163,7 @@ async def find_route(start: LatLng, dest: LatLng, profile: RouteProfile) -> Iter
                 (SELECT fraction FROM to_point),
                 TRUE,
                 TRUE,
-                'SELECT * FROM cyklaiskane_restrictions'
+                'SELECT to_cost, target_id, via_path FROM cyklaiskane_restrictions'
             ) route
             JOIN cyklaiskane roads ON route.id2 = roads.objectid
             JOIN weights USING (ts_klass)

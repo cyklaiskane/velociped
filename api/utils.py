@@ -113,20 +113,61 @@ def update_geodata() -> None:
         CREATE TABLE {restr_table} (to_cost, target_id, via_path) AS
         WITH grades AS (
           SELECT
+            unnest(ARRAY[from_vertex, to_vertex]) id,
             objectid,
-            konst_190,
-            ARRAY[from_vertex, to_vertex] as vertices
+            konst_190
           FROM {dst_table} WHERE konst_190 IS NOT NULL
         )
         SELECT
           1000::float8 to_cost,
           a.objectid::int4 target_id,
-          b.objectid::text via_path
+          b.objectid::text via_path,
+          a.id::int4 vertex_id,
+          1::int2 restriction_type
         FROM grades a, grades b
-        WHERE a.konst_190 != b.konst_190 AND a.vertices && b.vertices;
+        WHERE a.konst_190 != b.konst_190 AND a.id = b.id AND a.objectid <> b.objectid
     '''
+    logging.debug(restr_sql)
     dst_ds.ExecuteSQL(restr_sql)
     dst_ds.ExecuteSQL(f'CREATE INDEX ON {restr_table} (target_id)')
+    dst_ds.ExecuteSQL(f'CREATE INDEX ON {restr_table} (vertex_id)')
+    danger_sql = f'''
+        WITH danger AS (
+          SELECT DISTINCT
+            unnest(ARRAY[from_vertex, to_vertex]) id
+          FROM {dst_table}
+          WHERE ts_klass IN ('B2', 'B3', 'B4', 'B5')
+        ), danger_zone AS (
+          SELECT from_vertex id, objectid
+          FROM danger
+          JOIN {dst_table} ON id = from_vertex
+          WHERE ts_klass NOT IN ('B2', 'B3', 'B4', 'B5')
+
+          UNION ALL
+
+          SELECT to_vertex id, objectid
+          FROM danger
+          JOIN {dst_table} ON id = to_vertex
+          WHERE ts_klass NOT IN ('B2', 'B3', 'B4', 'B5')
+        ), danger_cost AS (
+            SELECT
+              1::float8 to_cost,
+              a.objectid::int4 target_id,
+              b.objectid::text via_path,
+              a.id::int4 vertex_id,
+              2::int2 restriction_type
+            FROM danger_zone a, danger_zone b
+            WHERE a.id = b.id AND a.objectid <> b.objectid
+        ), danger_filtered AS (
+            SELECT dc.*
+            FROM danger_cost dc
+            LEFT JOIN {restr_table} r USING (target_id, via_path)
+            WHERE r.target_id IS NULL and r.via_path IS NULL
+        )
+        INSERT INTO {restr_table} SELECT * FROM danger_filtered
+    '''
+    logging.debug(danger_sql)
+    dst_ds.ExecuteSQL(danger_sql)
     dst_ds.CommitTransaction()
 
     logging.info('Replacing geodata tables')
