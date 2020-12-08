@@ -13,7 +13,11 @@ router = APIRouter()
 
 
 @router.post('')
-async def route(query: RouteQuery, request: Request) -> Union[List, JSONResponse]:
+async def route(
+    query: RouteQuery,
+    request: Request,
+    output: str = 'routes',
+) -> Union[List, JSONResponse]:
     routes = []
 
     try:
@@ -28,7 +32,10 @@ async def route(query: RouteQuery, request: Request) -> Union[List, JSONResponse
         return JSONResponse(content={'error': str(e)}, status_code=500)
     for route in results:
         routes.append(route)
-    return routes
+    if output == 'routes':
+        return routes
+    elif output == 'geojson':
+        return routes[0].geojson
 
 
 async def do_route(waypoints: List, profile: RouteProfile) -> Route:
