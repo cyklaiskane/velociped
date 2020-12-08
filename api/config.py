@@ -19,6 +19,9 @@ POSTGRES_DSN = config('POSTGRES_DSN', cast=DatabaseURL)
 GEODATA_URL = config('GEODATA_URL')
 GEODATA_LAYER = config('GEODATA_LAYER')
 
+GEODATA_UPDATE_INIT = config('GEODATA_UPDATE_INIT', cast=bool, default=False)
+GEODATA_UPDATE_INTERVAL = config('GEODATA_UPDATE_INTERVAL', cast=int, default=0)
+
 GEODATA_TABLE = 'cyklaiskane'
 
 CORS_ORIGINS = config('CORS_ORIGINS', cast=CommaSeparatedStrings, default='*')

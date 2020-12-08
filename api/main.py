@@ -18,9 +18,11 @@ from api.config import (
     PORT,
     TILES_BG_URL,
     TILES_TS_URL,
+    GEODATA_UPDATE_INIT,
 )
 from api.database import db, init_extensions
 from api.security import oauth
+from api.utils import update_geodata
 from api.v1.utils.route import profiles
 
 app = FastAPI()
@@ -68,6 +70,9 @@ async def startup() -> None:
         await db.connect()
 
     await startup_db()
+
+    if GEODATA_UPDATE_INIT:
+        update_geodata()
 
     profiles.load('profiles.json')
 
