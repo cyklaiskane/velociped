@@ -1,6 +1,5 @@
 import logging
 
-from devtools import debug
 from fastapi import APIRouter, HTTPException, Request, Response
 
 from api.database import db
@@ -90,7 +89,6 @@ async def tile(layer: str, z: int, x: int, y: int) -> Response:
     resolution = 40075016.68557849 / (512 * 2 ** z)
     logging.debug(resolution)
     sql = layers[layer]['sql'].format(x=x, y=y, z=z, resolution=resolution)
-    debug(sql)
 
     tile = await db.fetch_val(sql, column='tile')
 

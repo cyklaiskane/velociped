@@ -65,7 +65,6 @@ async def do_route(waypoints: List, profile: RouteProfile) -> Route:
 
 @router.get('/profiles')
 async def get_profiles() -> List:
-    print(profiles.store)
     return [
         profile.dict(include={'name', 'label', 'description'})
         for profile in profiles.store
