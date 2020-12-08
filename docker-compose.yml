@@ -1,0 +1,38 @@
+version: '3.7'
+
+
+services:
+  api:
+    image: velociped
+    build:
+      dockerfile: Dockerfile
+      context: .
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_DSN=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - LM_CLIENT_ID
+      - LM_CLIENT_SECRET
+      - GEODATA_URL=wfs:http://geodata.skane.se:8080/geoserver/wfs
+      - GEODATA_LAYER
+      - GEODATA_UPDATE_INIT=True
+      - TILES_BG_URL
+    ports:
+      - 8080:8000
+    volumes:
+      - ./profiles.json:/app/profiles.json
+
+
+  db:
+    image: pgrouting/pgrouting:13-3.0-3.1.1
+    environment:
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+    volumes:
+      - db_data:/var/lib/postgresql/data:cached
+
+
+
+volumes:
+  db_data: {}
