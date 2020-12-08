@@ -161,8 +161,17 @@ En ensam API-instans kan startas med `poetry run serve`.
 En komplett miljö kan startas med:
 
 ```shell
-docker-compose -f docker-compose.yml -f docker-compose-dev.yml up
+docker-compose up
 ```
+
+Eventuellt behöver Docker-avbilder byggas först innan miljön startas upp. Detta kan göras med;
+
+```shell
+docker-compose build
+```
+
+Se nedan för hur miljön ska konfigureras.
+
 
 ### UI
 
@@ -227,7 +236,13 @@ LM_TOKEN_URL
 LM_ADDRESS_BASE_URL
 : Bas-URL för Lantmäteriets adresstjänst. (https://api.lantmateriet.se/distribution/produkter/belagenhetsadress/v4.1/)
 
-API stödjer även att läsa miljövariabler från en _.env_ fil.
+API stödjer även att läsa miljövariabler från en _.env_ fil. Skapa en textfil som heter `.env` i projektkatalogen och skriv in en miljövariabel med efterföljande likamedtecken och sedan värdet för variabeln på var rad. T.ex.:
+
+```shell
+GEODATA_URL=wfs:http://exempel/service
+GEODATA_LAYER=tsnet
+GEODATA_UPDATE=True
+```
 
 ## Driftsättning
 
