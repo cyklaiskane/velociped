@@ -3,6 +3,10 @@ name = "velociped"
 version = "0.1.0"
 description = ""
 authors = ["Joakim Fors <joakim.fors@trivector.se>"]
+packages = [
+  { include = "api" },
+]
+
 
 [tool.poetry.dependencies]
 python = "^3.8"
