@@ -1,7 +1,10 @@
 .PHONY: prod deploy run logs push
 
 prod:
-	docker build -t velociped -t trivectortraffic/velociped .
+	docker build --build-arg BUILD_ENV=prod -t velociped -t trivectortraffic/velociped .
+
+dev:
+	docker build --build-arg BUILD_ENV=dev -t velociped:dev -t trivectortraffic/velociped:dev .
 
 run:
 	docker-compose -f docker-compose.yml -f docker-compose-dev.yml up --remove-orphans -d db cyklaiskane-app
