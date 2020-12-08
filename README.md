@@ -9,7 +9,7 @@ Webbgränssnittet är byggt i ES6 Javascript och använder Leaflet som kartramve
 
 ## Använding
 
-API:t erbjuder tre tjänster som kan anropas via HTTP: _/route_, _/tiles_, och _/tiles_.
+API:t erbjuder tre tjänster som kan anropas via HTTP: _/route_, _/tiles_, och _/geocoder_.
 
 ### /route
 
@@ -66,6 +66,9 @@ Svaret returneras som ett JSON objekt med följande struktur:
 }
 ```
 
+Det går även att ange parametern `output=geojson` när en förfrågan görs för att få resultatet som en samling GeoJSON-objekt.
+
+
 Profiler defineras genom att skapa en JSON-fil med namnet `profiles.json` som placeras i projekt-katalogen. Innehållet bör ha följande utseende:
 
 ```json
@@ -104,14 +107,29 @@ Profiler defineras genom att skapa en JSON-fil med namnet `profiles.json` som pl
 
 Attributen _name_ bör endast bestå av bokstäver utan accenter. Attributobjektet _speeds_ definerar hastigheten i km/t för varje TS-klass och _weights_ anger en vikt, där högre värde på betyder farligare väg.
 
+
+### /tiles
+
+Det trafiksäkerhetsklassade vägnätet som ligger som grund för ruttmotorn kan
+
+
 ## Utveckling
 
 Följande mjukvara krävs för utveckling
 
+- git
 - Docker
 - Node.js 12+
 - Python 3.8+
   - Poetry
+
+
+Klona källkoden genom att köra
+
+```shell
+git clone https://github.com/cyklaiskane/velociped
+```
+
 
 ### API
 
@@ -135,6 +153,7 @@ npm install
 
 ## Köra
 
+
 ### API
 
 En ensam API-instans kan startas med `poetry run serve`.
@@ -147,13 +166,24 @@ docker-compose -f docker-compose.yml -f docker-compose-dev.yml up
 
 ### UI
 
+För att starta en utvecklingsversion av webbgränssnittet kör:
+
 ```shell
 npm run serve
+```
+
+För att bygga en statisk distribuerbar version:
+
+```shell
+npm run build
 ```
 
 ## Konfiguration
 
 Följande miljövariabler kan sättas (standardvärde inom parentes)
+
+API_BASE_URL
+: Basadress till API. Används av UI-delen för att veta vart ruttförfrågningar ska skickas.
 
 BIND_HOST
 : Vilken IP-adress API ska lyssna på (0.0.0.0)
