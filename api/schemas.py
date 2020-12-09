@@ -28,13 +28,10 @@ class Segment(BaseModel):
     duration: float
 
     @property
-    def geojson(self):
+    def geojson(self) -> dict:
         return {
             'properties': self.dict(include={'name', 'ts_klass', 'length', 'duration'}),
-            'geometry': {
-                'type': 'LineString',
-                'coordinates': self.coords,
-            }
+            'geometry': {'type': 'LineString', 'coordinates': self.coords,},
         }
 
 
@@ -45,11 +42,12 @@ class Route(BaseModel):
     segments: List[Segment] = []
 
     @property
-    def geojson(self):
+    def geojson(self) -> dict:
         return {
             'type': 'FeatureCollection',
             'features': [segment.geojson for segment in self.segments],
         }
+
 
 class RouteProfileSpeeds(BaseModel):
     C1: int

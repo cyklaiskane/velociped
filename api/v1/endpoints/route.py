@@ -14,9 +14,7 @@ router = APIRouter()
 
 @router.post('')
 async def route(
-    query: RouteQuery,
-    request: Request,
-    output: str = 'routes',
+    query: RouteQuery, request: Request, output: str = 'routes',
 ) -> Union[List, JSONResponse]:
     routes = []
 

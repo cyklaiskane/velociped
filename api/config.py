@@ -18,6 +18,7 @@ POSTGRES_DSN = config('POSTGRES_DSN', cast=DatabaseURL)
 
 GEODATA_URL = config('GEODATA_URL')
 GEODATA_LAYER = config('GEODATA_LAYER')
+GEODATA_BBOX = config('GEODATA_BBOX', cast=CommaSeparatedStrings, default=None)
 
 GEODATA_UPDATE_INIT = config('GEODATA_UPDATE_INIT', cast=bool, default=False)
 GEODATA_UPDATE_INTERVAL = config('GEODATA_UPDATE_INTERVAL', cast=int, default=0)

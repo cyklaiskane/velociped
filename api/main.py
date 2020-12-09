@@ -10,6 +10,7 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 from api import v1
 from api.config import (
     CORS_ORIGINS,
+    GEODATA_UPDATE_INIT,
     HOST,
     LM_ADDRESS_BASE_URL,
     LM_CLIENT_ID,
@@ -18,7 +19,6 @@ from api.config import (
     PORT,
     TILES_BG_URL,
     TILES_TS_URL,
-    GEODATA_UPDATE_INIT,
 )
 from api.database import db, init_extensions
 from api.security import oauth
