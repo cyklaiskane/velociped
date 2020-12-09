@@ -8,7 +8,7 @@ Webbgränssnittet är byggt i ES6 Javascript och använder Leaflet som kartramve
 
 ## Snabbstart
 
-Kräver _git_ och _Docker_. Klona projektet med `git clone https://github.com/cyklaiskane/velociped.git` byt katalog till `velociped`. Skapa en konfigurations-texfil i enlighet med avsnittet [konfiguration](#konfiguration) och sätt eventuellt värden för _TILES_BG_URL_ och _LM..._.
+Kräver _git_ och _Docker_. Klona projektet med `git clone https://github.com/cyklaiskane/velociped.git` byt katalog till `velociped`. Skapa en konfigurations-texfil i enlighet med avsnittet [konfiguration](#konfiguration) och sätt eventuellt värden för _TILES_BG_URL_ och _LM..._. Övriga värden är hårdkodade i _docker-compose.yml_.
 
 Kör sedan
 
