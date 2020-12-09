@@ -240,7 +240,10 @@ GEODATA_URL
 : Sökväg till källa för kartdata. Kan antingen vara en GeoPackage-fil eller en WFS adress. Om det är en WFS-adress ska URL-strängen börja med `wfs:`. Ex `wfs:https://geoserver.example.com/wfs`.
 
 GEODATA_LAYER
-: Lagernamn för kartdata
+: Lagernamn för kartdata i EPSG:3006
+
+GEODATA_BBOX
+: Eventuell begränsning av området som ska importeras i formatet _xmin,ymin,xmax,ymax_ med EPSG:3006 koordinater.
 
 GEODATA_UPDATE_INIT
 : Anger om geodatan ska uppdateras direkt när tjänsten startar. `True` eller `False` (False)

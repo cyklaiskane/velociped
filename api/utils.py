@@ -5,7 +5,13 @@ from typing import Iterable
 
 from osgeo import gdal, ogr, osr
 
-from api.config import GEODATA_LAYER, GEODATA_TABLE, GEODATA_URL, POSTGRES_DSN
+from api.config import (
+    GEODATA_BBOX,
+    GEODATA_LAYER,
+    GEODATA_TABLE,
+    GEODATA_URL,
+    POSTGRES_DSN,
+)
 
 
 def pairwise(iterable: Iterable) -> Iterable:
@@ -34,7 +40,9 @@ def update_geodata() -> None:
         else [],
     )
     src_layer = src_ds.GetLayerByName(GEODATA_LAYER)
-    src_layer.SetSpatialFilterRect(396181.4, 6169076.0, 396994.0, 6169484.3)
+    if GEODATA_BBOX:
+        # src_layer.SetSpatialFilterRect(396181.4, 6169076.0, 396994.0, 6169484.3)
+        src_layer.SetSpatialFilterRect(*[float(v) for v in GEODATA_BBOX])
 
     schema = {
         'objectid': ogr.OFTInteger,
