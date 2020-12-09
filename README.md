@@ -6,6 +6,21 @@ Velociped är ett kombinerat ruttnings-API och webbgränssnitt utvecklat för [c
 
 Webbgränssnittet är byggt i ES6 Javascript och använder Leaflet som kartramverk med Leaflet Routing Machine insticksmodul som ruttningsgränssnitt.
 
+## Snabbstart
+
+Kräver _git_ och _Docker_. Klona projektet med `git clone https://github.com/cyklaiskane/velociped.git` byt katalog till `velociped`. Skapa en konfigurations-texfil i enlighet med avsnittet [konfiguration](#konfiguration) och sätt eventuellt värden för _TILES_BG_URL_ och _LM..._.
+
+Kör sedan
+
+```shell
+docker-compose build
+```
+
+behöver bara göras första gången eller om källkoden uppdaterats. Det går nu att starta en instans med
+
+```shell
+docker-compose up
+```
 
 ## Använding
 

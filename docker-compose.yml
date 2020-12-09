@@ -10,11 +10,11 @@ services:
     depends_on:
       - db
     environment:
-      - POSTGRES_DSN=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      - POSTGRES_DSN=postgres://postgres:allmaktattengil@db:5432/velo
       - LM_CLIENT_ID
       - LM_CLIENT_SECRET
       - GEODATA_URL=wfs:http://geodata.skane.se:8080/geoserver/wfs
-      - GEODATA_LAYER
+      - GEODATA_LAYER=rs:cyklaiskane_trafiksakerhetsklassat_natverk
       - GEODATA_UPDATE_INIT=True
       - TILES_BG_URL
     ports:
@@ -26,9 +26,9 @@ services:
   db:
     image: pgrouting/pgrouting:13-3.0-3.1.1
     environment:
-      - POSTGRES_USER
-      - POSTGRES_PASSWORD
-      - POSTGRES_DB
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=allmaktattengil
+      - POSTGRES_DB=velo
     volumes:
       - db_data:/var/lib/postgresql/data:cached
 
