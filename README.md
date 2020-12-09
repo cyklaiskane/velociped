@@ -9,11 +9,11 @@ Webbgränssnittet är byggt i ES6 Javascript och använder Leaflet som kartramve
 
 ## Använding
 
-API:t erbjuder tre tjänster som kan anropas via HTTP: _/route_, _/tiles_, och _/geocoder_.
+API:t erbjuder tre tjänster som kan anropas via HTTP: _/v1/route_, _/v1/tiles_, och _/v1/geocoder_.
 
 ### /route
 
-För att göra ett ruttuppslag kan man skicka en _POST_ förfrågan till `/route` med ett JSON-objekt bestående av ett antal målpunkter och eventuellt namnet på en ruttprofil genom att inkludera attributen `profile_name` i objektet. Exempel på JSON-objekt:
+För att göra ett ruttuppslag kan man skicka en _POST_ förfrågan till `/v1/route` med ett JSON-objekt bestående av ett antal målpunkter och eventuellt namnet på en ruttprofil genom att inkludera attributen `profile_name` i objektet. Exempel på JSON-objekt:
 
 ```json
 {
@@ -30,6 +30,8 @@ För att göra ett ruttuppslag kan man skicka en _POST_ förfrågan till `/route
 }
 ```
 
+och med profil-definition
+
 ```json
 {
   "waypoints": [
@@ -45,6 +47,8 @@ För att göra ett ruttuppslag kan man skicka en _POST_ förfrågan till `/route
   "profile_name": "fastest"
 }
 ```
+
+Man kan testa anrop med hjälp av t.ex. [Postman](https://www.postman.com/) eller [curl](https://curl.se/) (curl -d @test.json http://example.com/v1/route).
 
 Svaret returneras som ett JSON objekt med följande struktur:
 
@@ -66,8 +70,7 @@ Svaret returneras som ett JSON objekt med följande struktur:
 }
 ```
 
-Det går även att ange parametern `output=geojson` när en förfrågan görs för att få resultatet som en samling GeoJSON-objekt.
-
+Det går även att ange parametern `output=geojson` i URLen (ex `http://example.com/v1/route?output=geojson`) när en förfrågan görs för att få resultatet som en samling GeoJSON-objekt.
 
 Profiler defineras genom att skapa en JSON-fil med namnet `profiles.json` som placeras i projekt-katalogen. Innehållet bör ha följande utseende:
 
@@ -110,18 +113,39 @@ Attributen _name_ bör endast bestå av bokstäver utan accenter. Attributobjekt
 
 ### /tiles
 
-Det trafiksäkerhetsklassade vägnätet som ligger som grund för ruttmotorn kan
+Det trafiksäkerhetsklassade vägnätet som ligger som grund för ruttmotorn kan hämtas som tiles i [MVT](https://docs.mapbox.com/vector-tiles/specification/)-format. Följer samma XYZ numreringsschema som Google Maps/OpenStreetMap.
 
+```
+http://example.com/v1/tiles/ts/<z>/<x>/<y>.pbf
+```
+
+
+### /geocoder
+
+Geocodern fungerar enbart som ett ombud för Lantmteriets adresstjänst. För att göra adressökning görs en _GET_ förfrågan mot `/v1/geocoder/search/<fritext>`. Svaret är en samling JSON-objekt med adresser och koordinater. Ex:
+
+```json
+[
+  {
+    "name": "Null Island 1",
+    "lat": 0,
+    "lng": 0,
+    "feature": {}
+  }
+]
+```
+
+Det går även att göra omvänd geokodning genom att skicka en _GET_ förfrågan till `/v1/geocoder/reverse/<lat>,<lng>` med EPSG:4326 koordinater. Svaret är ett JSON-objekt med samma struktur som vid adressökning.
 
 ## Utveckling
 
 Följande mjukvara krävs för utveckling
 
-- git
-- Docker
-- Node.js 12+
-- Python 3.8+
-  - Poetry
+- [git](https://git-scm.com/)
+- [Docker](https://www.docker.com/)
+- [Node.js 12+](https://nodejs.org/)
+- [Python 3.8+](https://www.python.org/)
+  - [Poetry](https://python-poetry.org/)
 
 
 Klona källkoden genom att köra
@@ -164,7 +188,7 @@ En komplett miljö kan startas med:
 docker-compose up
 ```
 
-Eventuellt behöver Docker-avbilder byggas först innan miljön startas upp. Detta kan göras med;
+Eventuellt behöver Docker-avbilder byggas först innan miljön startas upp. Detta kan göras med nedanstående kommando.
 
 ```shell
 docker-compose build
@@ -207,7 +231,7 @@ POSTGRES_DSN
 : Sökväg till en PostgreSQL databas i formen _postgres://användarnamn:lösenord@adress:port/databas_
 
 TILES_BG_URL
-: Leaflet-kompatibel Tile URL för bakgrundskarta. Ex _https://maps.example.com/{z}/{x}/{y}.png
+: Leaflet-kompatibel Tile URL för bakgrundskarta med samma schema som Google Maps/OpenStreetMap. Ex _https://maps.example.com/{z}/{x}/{y}.png
 
 TILES_TS_URL
 : Leaflet-kompatibel Tile URL för trafiksäkerhetsklassat nätverk
