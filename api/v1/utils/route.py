@@ -42,8 +42,8 @@ async def find_route(start: LatLng, dest: LatLng, profile: RouteProfile) -> Iter
     waypoints_sql = []
     for i, waypoint in enumerate([start, dest]):
         waypoints_sql.append(
-            f'({i}, ST_Transform(ST_SetSRID(ST_MakePoint('
-            f'{waypoint.lng}, {waypoint.lat})'
+            f'({i:d}, ST_Transform(ST_SetSRID(ST_MakePoint('
+            f'{waypoint.lng:f}, {waypoint.lat:f})'
             ', 4326), 3006))'
         )
 
