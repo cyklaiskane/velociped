@@ -352,6 +352,17 @@ G1    Bra grusväg
 G2    Grusväg
 
 
+För att ändra/lägga till/ta bort TS-klasser är det följande filer som berörs:
+
+```
+src/ts-styles.js
+api/schemas.py
+profiles.json
+```
+
+Ska man ändra vilken/vilka attribut som används för ruttberäkning behöver man bekanta sig med hela kodbasen och då främst med `api/v1/utils/route.py`.
+
+
 ## Driftsättning
 
 ...
