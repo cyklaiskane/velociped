@@ -4,6 +4,9 @@ from starlette.datastructures import CommaSeparatedStrings, Secret
 
 config = Config('.env')
 
+ENV = config('ENV', default='prod')
+LOG_LEVEL = config('LOG_LEVEL', default='info')
+
 HOST = config('BIND_HOST', default='0.0.0.0')
 PORT = config('BIND_PORT', cast=int, default=8000)
 

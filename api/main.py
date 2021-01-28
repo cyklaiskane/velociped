@@ -10,12 +10,14 @@ from tenacity import retry, stop_after_attempt, wait_fixed
 from api import v1
 from api.config import (
     CORS_ORIGINS,
+    ENV,
     GEODATA_UPDATE_INIT,
     HOST,
     LM_ADDRESS_BASE_URL,
     LM_CLIENT_ID,
     LM_CLIENT_SECRET,
     LM_TOKEN_URL,
+    LOG_LEVEL,
     PORT,
     TILES_BG_URL,
     TILES_TS_URL,
@@ -101,9 +103,9 @@ def main() -> None:
         'api.main:app',
         host=HOST,
         port=PORT,
-        reload=True,
+        reload=ENV == 'dev',
         forwarded_allow_ips='*',
-        log_level='debug',
+        log_level=LOG_LEVEL,
     )
 
 
