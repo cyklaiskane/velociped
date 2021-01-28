@@ -1,4 +1,6 @@
-.PHONY: prod deploy run logs push
+DOCKER_IMAGES := mapproxy tileserver varnish
+
+.PHONY: prod deploy run logs push images $(DOCKER_IMAGES)
 
 prod:
 	docker build --build-arg BUILD_ENV=prod -t velociped -t trivectortraffic/velociped .
@@ -19,3 +21,8 @@ deploy:
 
 push:
 	docker push trivectortraffic/velociped
+
+images: $(DOCKER_IMAGES)
+
+$(DOCKER_IMAGES):
+	docker build -t cyklaiskane-$@ $@
