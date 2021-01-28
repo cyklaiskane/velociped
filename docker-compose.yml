@@ -90,6 +90,8 @@ services:
     depends_on:
       - tileserver
       - mapproxy
+    environment:
+      - VARNISH_SIZE=1G
     ports:
       - 8080:80
     labels:
