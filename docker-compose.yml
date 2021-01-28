@@ -1,38 +1,102 @@
 version: '3.7'
 
+volumes:
+  db_data: {}
 
 services:
-  api:
-    image: velociped
-    build:
-      dockerfile: Dockerfile
-      context: .
-    depends_on:
-      - db
-    environment:
-      - POSTGRES_DSN=postgres://postgres:allmaktattengil@db:5432/velo
-      - LM_CLIENT_ID
-      - LM_CLIENT_SECRET
-      - GEODATA_URL=wfs:http://geodata.skane.se:8080/geoserver/wfs
-      - GEODATA_LAYER=rs:cyklaiskane_trafiksakerhetsklassat_natverk
-      - GEODATA_UPDATE_INIT=True
-      - TILES_BG_URL
+  traefik:
+    image: traefik:v2.4
     ports:
-      - 8080:8000
+      - target: 80
+        published: 80
+        protocol: tcp
+        mode: host
+      - target: 443
+        published: 443
+        protocol: tcp
+        mode: host
     volumes:
-      - ./profiles.json:/app/profiles.json
+      - /var/run/docker.sock:/var/run/docker.sock
+    command:
+      - --providers.docker
+      - --providers.docker.endpoint=unix:///var/run/docker.sock
+      - --providers.docker.exposedbydefault=false
 
+      - --log.level=INFO
+      - --accesslog
+
+      - --entrypoints.web.address=:80
+      - --entrypoints.web.http.redirections.entrypoint.to=websecure
+
+      - --entrypoints.websecure.address=:443
+
+      - --certificatesresolvers.le.acme.email=joakim.fors@trivector.se
+      - --certificatesresolvers.le.acme.storage=acme.json
+      - --certificatesresolvers.le.acme.httpchallenge.entrypoint=web
 
   db:
     image: pgrouting/pgrouting:13-3.0-3.1.1
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=allmaktattengil
-      - POSTGRES_DB=velo
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
     volumes:
       - db_data:/var/lib/postgresql/data:cached
 
+  api:
+    image: velociped
+    depends_on:
+      - db
+    environment:
+      - POSTGRES_DSN=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:5432/$POSTGRES_DB
+      - LM_CLIENT_ID
+      - LM_CLIENT_SECRET
+      - GEODATA_URL=wfs:http://geodata.skane.se:8080/geoserver/wfs
+      - GEODATA_LAYER=rs:cyklaiskane_trafiksakerhetsklassat_natverk
+      - GEODATA_BBOX
+      - GEODATA_UPDATE_INIT=False
+      - TILES_TS_URL
+      - TILES_BG_URL
+    ports:
+      - 8000:8000
+    volumes:
+      - ./profiles.json:/app/profiles.json
+    labels:
+      - traefik.enable=true
+      #- traefik.http.routers.api.rule=Host(`api.cyklaiskane.se`) || Host(`vm-rs-prod-cykla-01.westeurope.cloudapp.azure.com`)
+      - traefik.http.routers.api.rule=Host(`vm-rs-prod-cykla-01.westeurope.cloudapp.azure.com`)
+      - traefik.http.routers.api.entrypoints=websecure
+      - traefik.http.routers.api.tls=true
+      - traefik.http.routers.api.tls.certresolver=le
+      - traefik.http.services.api.loadbalancer.server.port=8000
 
+  tileserver:
+    image: cyklaiskane-tileserver
+    depends_on:
+      - api
+    ports:
+      - 8001:8000
+    command:
+      - -p
+      - "8000"
 
-volumes:
-  db_data: {}
+  mapproxy:
+    image: cyklaiskane-mapproxy
+    ports:
+      - 8002:8000
+
+  varnish:
+    image: cyklaiskane-varnish
+    depends_on:
+      - tileserver
+      - mapproxy
+    ports:
+      - 8080:80
+    labels:
+      - traefik.enable=true
+
+      - traefik.http.routers.varnish.rule=Host(`maps.cyklaiskane.se`)
+      - traefik.http.routers.varnish.entrypoints=websecure
+      - traefik.http.routers.varnish.tls=true
+      - traefik.http.routers.varnish.tls.certresolver=le
+      - traefik.http.services.varnish.loadbalancer.server.port=80"
