@@ -63,8 +63,7 @@ services:
       - ./profiles.json:/app/profiles.json
     labels:
       - traefik.enable=true
-      #- traefik.http.routers.api.rule=Host(`api.cyklaiskane.se`) || Host(`vm-rs-prod-cykla-01.westeurope.cloudapp.azure.com`)
-      - traefik.http.routers.api.rule=Host(`vm-rs-prod-cykla-01.westeurope.cloudapp.azure.com`)
+      - traefik.http.routers.api.rule=Host(`api.cyklaiskane.se`) || Host(`maps.cyklaiskane.se`) ||Host(`vm-rs-prod-cykla-01.westeurope.cloudapp.azure.com`)
       - traefik.http.routers.api.entrypoints=websecure
       - traefik.http.routers.api.tls=true
       - traefik.http.routers.api.tls.certresolver=le
