@@ -6,12 +6,9 @@ services:
   wms:
 
 layers:
-  - name: topowebbkartan_nedtonad
+  - name: nedtonad
     title: Nedtonad
     sources: [nedtonad_cache]
-  - name: topowebbkartan_3857_nedtonad
-    title: Nedtonad
-    sources: [nedtonad_3857_cache]
 
 caches:
   nedtonad_cache:
@@ -19,27 +16,8 @@ caches:
     disable_storage: true
     sources: [nedtonad_wms]
 
-  nedtonad_3857_cache:
-    grids: [webmercator]
-    disable_storage: true
-    sources: [nedtonad_3857_wms]
-
-
 sources:
   nedtonad_wms:
-    type: wms
-    req:
-      url: https://geodata.skane.se/geoserver/ows
-      layers: lm:topowebbkartan_nedtonad
-    supported_srs: [EPSG:3006]
-    supported_formats: [image/png]
-    wms_opts:
-      version: 1.3.0
-    coverage:
-      bbox: [-2404827.0009672772139311, 4114708.2330075190402567, 8450848.4194616992026567, 10001336.1088788099586964]
-      srs: EPSG:3006
-
-  nedtonad_3857_wms:
     type: wms
     req:
       url: https://geodata.skane.se/geoserver/ows
@@ -51,7 +29,6 @@ sources:
     coverage:
       bbox: [-2404827.0009672772139311, 4114708.2330075190402567, 8450848.4194616992026567, 10001336.1088788099586964]
       srs: EPSG:3006
-
 
 grids:
   webmercator:
