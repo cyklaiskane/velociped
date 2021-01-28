@@ -4,6 +4,7 @@ from typing import Any
 from fastapi import FastAPI, Request
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
+from fastapi_utils.tasks import repeat_every
 from starlette.middleware.cors import CORSMiddleware
 from tenacity import retry, stop_after_attempt, wait_fixed
 
@@ -12,6 +13,7 @@ from api.config import (
     CORS_ORIGINS,
     ENV,
     GEODATA_UPDATE_INIT,
+    GEODATA_UPDATE_INTERVAL,
     HOST,
     LM_ADDRESS_BASE_URL,
     LM_CLIENT_ID,
@@ -75,6 +77,13 @@ async def startup() -> None:
 
     if GEODATA_UPDATE_INIT:
         update_geodata()
+
+    if GEODATA_UPDATE_INTERVAL > 0:
+
+        @repeat_every(seconds=GEODATA_UPDATE_INTERVAL, wait_first=True)
+        def refresh_geodata() -> None:
+            logging.info('Starting geodata refresh...')
+            update_geodata()
 
     profiles.load('profiles.json')
 
