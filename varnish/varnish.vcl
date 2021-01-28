@@ -1,13 +1,32 @@
 vcl 4.0;
 
-backend default {
+backend default none;
+
+backend tileserver {
   .host = "tileserver";
   .port = "8000";
 }
 
+backend mapproxy {
+  .host = "mapproxy";
+  .port = "8000";
+}
+
 sub vcl_recv {
-  if (req.url ~ "\.png$") {
+  if (req.url ~ "/\d+/\d+/\d+\.png$") {
     unset req.http.cookie;
+  } else {
+    return (synth(404, "Not found"));
+  }
+
+  if (req.url ~ "^/nedtonad") {
+    set req.backend_hint = mapproxy;
+    set req.url = regsub(req.url, ".*/(\d+/\d+/\d+\.png)$", "/tiles/1.0.0/nedtonad/webmercator/\1");
+  } elif (req.url ~ "^/trafiksakerhet") {
+    set req.backend_hint = tileserver;
+    set req.url = regsub(req.url, ".*/(\d+/\d+/\d+\.png)$", "/styles/trafiksakerhet/\1");
+  } else {
+    return (synth(404, "Not found"));
   }
 }
 
