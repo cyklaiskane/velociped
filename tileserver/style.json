@@ -1,10 +1,10 @@
 {
   "version": 8,
-  "name": "Velo roads",
+  "name": "Trafiksäkerhetsklassat vägnät",
   "sources": {
     "roads": {
       "type": "vector",
-      "url": "http://cyklaiskane-app:8000/v1/tiles/ts.json"
+      "url": "http://api:8000/v1/tiles/ts.json"
     }
   },
   "layers": [
