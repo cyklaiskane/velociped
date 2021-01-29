@@ -4,9 +4,15 @@ volumes:
   db_data: {}
   letsencrypt_data: {}
 
+x-logging: &logging-options
+  options:
+    max-size: "200k"
+    max-file: "10"
+
 services:
   traefik:
     image: traefik:v2.4
+    logging: *logging-options
     ports:
       - target: 80
         published: 80
@@ -38,6 +44,7 @@ services:
 
   db:
     image: pgrouting/pgrouting:13-3.0-3.1.1
+    logging: *logging-options
     environment:
       - POSTGRES_USER
       - POSTGRES_PASSWORD
@@ -47,6 +54,7 @@ services:
 
   api:
     image: velociped
+    logging: *logging-options
     depends_on:
       - db
     environment:
@@ -73,6 +81,7 @@ services:
 
   tileserver:
     image: cyklaiskane-tileserver
+    logging: *logging-options
     depends_on:
       - api
     ports:
@@ -83,11 +92,13 @@ services:
 
   mapproxy:
     image: cyklaiskane-mapproxy
+    logging: *logging-options
     ports:
       - 8002:8000
 
   varnish:
     image: cyklaiskane-varnish
+    logging: *logging-options
     depends_on:
       - tileserver
       - mapproxy
