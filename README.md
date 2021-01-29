@@ -241,7 +241,7 @@ npm run build
 Följande miljövariabler kan sättas (standardvärde inom parentes)
 
 API_BASE_URL
-: Basadress till API. Används av UI-delen för att veta vart ruttförfrågningar ska skickas.
+: Basadress till API. Används av UI-delen för att veta vart ruttförfrågningar ska skickas. Lämnas tomt när UI-delen körs direkt från API-tjänsten.
 
 BIND_HOST
 : Vilken IP-adress API ska lyssna på (0.0.0.0)
@@ -363,12 +363,18 @@ profiles.json
 Ska man ändra vilken/vilka attribut som används för ruttberäkning behöver man bekanta sig med hela kodbasen och då främst med `api/v1/utils/route.py`.
 
 
-## Driftsättning
+## Enkel driftsättning
+
+Tjänsten är utvecklad för att köras i Region Skånes Azure-miljö på en virtuell maskin som kör Debian 11 eller senare. För att förbereda maskinen och starta tjänsten följer nedan en samling kommandon.
 
 
+### Förberedelser
+
+Nedanstående kommandon bör köras för att installera och konfigurera en maskin så att tjänsten kan startas. Det förutsätter att  man är inloggad på maskinen som användaren _azureuser_ och har "sudo" rättigheter.
 
 
 ```shell
+# Install required dependencies to install Docker CE
 sudo apt install \
     apt-transport-https \
     ca-certificates \
@@ -376,25 +382,80 @@ sudo apt install \
     gnupg-agent \
     software-properties-common
 
+# Add Docker package signing keys
 curl -fsSL https://download.docker.com/linux/debian/gpg | sudo apt-key add -
 
+# Add Docker CE repository
 sudo add-apt-repository \
    "deb [arch=amd64] https://download.docker.com/linux/debian \
    $(lsb_release -cs) \
    stable"
 
+# Refresh pckage db and install
 sudo apt update
 sudo apt install docker-ce docker-ce-cli containerd.io
 
-sudo usermod -a -G docker azureuser
-
-sudo apt install make git
-
+# Fetch docker-composer and make it executable. Note: bump version number
 sudo curl -L "https://github.com/docker/compose/releases/download/1.27.4/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
 sudo chmod +x /usr/local/bin/docker-compose
 
+# Add user to docker group
+sudo usermod -a -G docker azureuser
+
+# Install project build prerequisites
+sudo apt install make git
+# Clone project source
 git clone https://github.com/cyklaiskane/velociped.git
+# Change to project directory
 cd velociped
+```
+
+I det här skedet är all programvara och källkod på plats för att bygga och starta tjänsten. Det som nu krävs är att skapa en fil med namnet `.env` för att sätta värden på en del konfigurationsvariabler. Innehållet kan se ut som nedan.
+
+```shell
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=<you password here>
+POSTGRES_DB=postgres
+POSTGRES_HOST=db
+
+#GEODATA_URL=wfs:http://geodata.skane.se:8080/geoserver/wfs
+#GEODATA_LAYER=rs:cyklaiskane_trafiksakerhetsklassat_natverk
+
+# Required for geocoding
+LM_TOKEN_URL=https://api.lantmateriet.se/token
+LM_CLIENT_ID=<provided id here>
+LM_CLIENT_SECRET=<provided secret here>
+
+# Uncomment to override default
+#TILES_TS_URL=https://maps.cyklaiskane.se/trafiksakerhet/{z}/{x}/{y}.png
+#TILES_BG_URL=https://maps.cyklaiskane.se/nedtonad/{z}/{x}/{y}.png
+
+# Address to api and maps/tiles endpoint. Uncomment to override default
+#API_ADDRESS=api.cyklaiskane.se
+#MAPS_ADDRESS=maps.cyklaiskane.se
+```
+
+Allt är nu på plats för att bygga docker-avbilder och starta tjänsten.
+
+```shell
+# Build all docker images
 make
+# Start service and all dependecy services
+docker-compose up -d
+```
+
+
+### Uppdatera tjänsten
+
+För att uppdatera tjänsten med nyare källkod eller vid ändring av konfigurationsvariabler kan man köra nedanstående kommandon i källkodskatalogen (_velociped_ om man följt tidigare instruktioner).
+
+```shell
+# Fetch latest version of project source
+git fetch
+# Apply changes to local files
+git rebase
+# Build images
+make
+# Start
 docker-compose up -d
 ```
