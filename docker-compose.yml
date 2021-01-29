@@ -38,7 +38,7 @@ services:
 
       - --entrypoints.websecure.address=:443
 
-      - --certificatesresolvers.letsencrypt.acme.email=joakim.fors@trivector.se
+      - --certificatesresolvers.letsencrypt.acme.email=${LETS_ENCRYPT_EMAIL:-Corey.Ragosnig@skane.se}
       - --certificatesresolvers.letsencrypt.acme.storage=/letsencrypt/acme.json
       - --certificatesresolvers.letsencrypt.acme.httpchallenge.entrypoint=web
 
@@ -58,22 +58,22 @@ services:
     depends_on:
       - db
     environment:
-      - POSTGRES_DSN=postgres://$POSTGRES_USER:$POSTGRES_PASSWORD@$POSTGRES_HOST:5432/$POSTGRES_DB
+      - POSTGRES_DSN=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:5432/${POSTGRES_DB}
       - LM_CLIENT_ID
       - LM_CLIENT_SECRET
-      - GEODATA_URL=wfs:http://geodata.skane.se:8080/geoserver/wfs
-      - GEODATA_LAYER=rs:cyklaiskane_trafiksakerhetsklassat_natverk
+      - GEODATA_URL=${GEODATA_URL:-wfs:http://geodata.skane.se:8080/geoserver/wfs}
+      - GEODATA_LAYER=${GEODATA_LAYER:-rs:cyklaiskane_trafiksakerhetsklassat_natverk}
       - GEODATA_BBOX
-      - GEODATA_UPDATE_INIT=False
-      - TILES_TS_URL
-      - TILES_BG_URL
+      - GEODATA_UPDATE_INIT={GEODATA_UPDATE_INIT:-False}
+      - TILES_TS_URL=${TILES_TS_URL:-https://maps.cyklaiskane.se/trafiksakerhet/{z}/{x}/{y}.png}
+      - TILES_BG_URL=${TILES_BG_URL:-https://maps.cyklaiskane.se/nedtonad/{z}/{x}/{y}.png}
     ports:
       - 8000:8000
     volumes:
       - ./profiles.json:/app/profiles.json
     labels:
       - traefik.enable=true
-      - traefik.http.routers.api.rule=Host(`api.cyklaiskane.se`) || Host(`vm-rs-prod-cykla-01.westeurope.cloudapp.azure.com`)
+      - traefik.http.routers.api.rule=Host(`${API_ADDRESS:-api.cyklaiskane.se}`)
       - traefik.http.routers.api.entrypoints=websecure
       - traefik.http.routers.api.tls=true
       - traefik.http.routers.api.tls.certresolver=letsencrypt
@@ -109,7 +109,7 @@ services:
     labels:
       - traefik.enable=true
 
-      - traefik.http.routers.varnish.rule=Host(`maps.cyklaiskane.se`)
+      - traefik.http.routers.varnish.rule=Host(`${MAPS_ADDRESS:-maps.cyklaiskane.se}`)
       - traefik.http.routers.varnish.entrypoints=websecure
       - traefik.http.routers.varnish.tls=true
       - traefik.http.routers.varnish.tls.certresolver=letsencrypt
