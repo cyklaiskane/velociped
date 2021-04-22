@@ -4,7 +4,8 @@ import state from './state.js';
 
 export default L.Class.extend({
   options: {
-      serviceUrl: '',
+    serviceUrl: '',
+    showInstructions: true,
   },
 
   initialize: function(options) {

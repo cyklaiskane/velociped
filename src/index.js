@@ -71,12 +71,15 @@ var map = L.map(element, {
   //center: [55.665193184436035, 13.355383872985841],
   //zoom: 14,
   layers: [backgroundTiles],
+  zoomControl: false,
 })
-.setMaxBounds(bounds)
-.fitBounds(bounds);
+  .setMaxBounds(bounds)
+  .fitBounds(bounds);
 
 
 const routing = new L.Routing.control({
+  language: 'sv',
+  showAlternatives: true,
   lineOptions: {
     styles: [
       { color: 'black', opacity: 0.7, weight: 10, },
@@ -89,6 +92,7 @@ const routing = new L.Routing.control({
       { color: 'white', opacity: 0.4, weight: 6 },
     ]
   },
+  position: 'topleft',
   waypoints: state.waypoints,
   router: new Router({serviceUrl: apiBaseUrl}),
   routeLine: function(route, options) {
@@ -117,7 +121,7 @@ const overlayMaps = {
 };
 
 L.control.layers(baseMaps, overlayMaps, {
-  position: 'bottomright',
+  position: 'bottomleft',
   hideSingleBase: true,
 }).addTo(map);
 
@@ -149,6 +153,11 @@ map.on('contextmenu', function(e) {
     });
 });
 
-new InfoControl({position: 'topleft'}).addTo(map);
-new ProfileControl({position: 'topright', baseUrl: apiBaseUrl, routing: routing}).addTo(map);
-new GpxControl({position: 'bottomleft', routing: routing}).addTo(map);
+//new InfoControl({position: 'topleft'}).addTo(map);
+new ProfileControl({ position: 'topleft', baseUrl: apiBaseUrl, routing: routing }).addTo(map);
+new GpxControl({ position: 'bottomleft', routing: routing }).addTo(map);
+L.control.zoom({
+  position: 'bottomleft'
+}).addTo(map);
+
+L.Routing.errorControl(routing).addTo(map);
