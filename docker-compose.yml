@@ -6,7 +6,7 @@ volumes:
 
 x-logging: &logging-options
   options:
-    max-size: "200k"
+    max-size: "2m"
     max-file: "10"
 
 services:
