@@ -13,6 +13,12 @@ export default L.Routing.Line.extend({
       let pl = L.polyline(L.GeoJSON.coordsToLatLngs(segment.coords), tsStyles[segment.ts_klass] || {});
       this.addLayer(pl);
     }
+    for (const danger of route.dangerCoordinates) {
+      this.addLayer(L.circleMarker(danger, {
+        color: 'red',
+        opacity: 0.2,
+      }));
+    }
   },
 
   _addSegment: function (coords, styles, mouselistener) {

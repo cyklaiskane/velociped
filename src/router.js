@@ -6,6 +6,7 @@ export default L.Class.extend({
   options: {
     serviceUrl: '',
     showInstructions: true,
+    dangerClasses: ['B3', 'B4', 'B5'],
   },
 
   initialize: function (options) {
@@ -38,11 +39,21 @@ export default L.Class.extend({
         }
         const result = data.map(route => {
           const coordinates = route.segments.map(segment => L.GeoJSON.coordsToLatLngs(segment.coords)).flat();
+          const dangerCoordinates = route.segments.reduce((coords, segment) => {
+            if (segment.danger_coords) {
+              coords.push(...L.GeoJSON.coordsToLatLngs(segment.danger_coords));
+            }
+            return coords;
+          },
+            []
+          );
           let index = 0;
           return {
             name: route.name,
             summary: { totalTime: route.duration, totalDistance: route.length },
+            danger: route.segments.some(segment => this.options.dangerClasses.includes(segment.ts_klass)),
             coordinates: coordinates,
+            dangerCoordinates: dangerCoordinates,
             segments: route.segments,
             inputWaypoints: waypoints,
             waypoints: [],

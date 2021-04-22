@@ -95,6 +95,26 @@ const routing = new L.Routing.control({
   position: 'topleft',
   waypoints: state.waypoints,
   router: new Router({ serviceUrl: apiBaseUrl, showInstructions: false }),
+  summaryTemplate: function (data) {
+    if (data.danger) {
+      data.name += '  ⚠️';
+    }
+    const html = L.Util.template('<h2>{name}</h2><h3>{distance}, {time}</h3>', data);
+    return html;
+  },
+  createGeocoderElement: function (wp, i, nWps, plan) {
+    const ge = new L.Routing.GeocoderElement(wp, i, nWps, plan);
+    if (plan.addWaypoints && i < nWps - 1) {
+      const btnContainer = L.DomUtil.create('div', '', ge.getContainer());
+      const addWpBtn = L.DomUtil.create('button', 'leaflet-routing-add-waypoint ' + plan.addButtonClassName, btnContainer);
+      L.DomUtil.create('span', 'clear', btnContainer);
+      addWpBtn.setAttribute('type', 'button');
+      L.DomEvent.addListener(addWpBtn, 'click', function () {
+        routing.spliceWaypoints(i + 1, 0, null);
+      });
+    }
+    return ge;
+  },
   routeLine: function (route, options) {
     return new Line(route, options, tsStyles);
   },
