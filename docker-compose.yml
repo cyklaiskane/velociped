@@ -96,21 +96,21 @@ services:
     ports:
       - 8002:8000
 
-  varnish:
-    image: cyklaiskane-varnish
-    logging: *logging-options
-    depends_on:
-      - tileserver
-      - mapproxy
-    environment:
-      - VARNISH_SIZE=1G
-    ports:
-      - 8080:80
-    labels:
-      - traefik.enable=true
-
-      - traefik.http.routers.varnish.rule=Host(`${MAPS_ADDRESS:-maps.cyklaiskane.se}`)
-      - traefik.http.routers.varnish.entrypoints=websecure
-      - traefik.http.routers.varnish.tls=true
-      - traefik.http.routers.varnish.tls.certresolver=letsencrypt
-      - traefik.http.services.varnish.loadbalancer.server.port=80
+#  varnish:
+#    image: cyklaiskane-varnish
+#    logging: *logging-options
+#    depends_on:
+#      - tileserver
+#      - mapproxy
+#    environment:
+#      - VARNISH_SIZE=1G
+#    ports:
+#      - 8080:80
+#    labels:
+#      - traefik.enable=true
+#
+#      - traefik.http.routers.varnish.rule=Host(`${MAPS_ADDRESS:-maps.cyklaiskane.se}`)
+#      - traefik.http.routers.varnish.entrypoints=websecure
+#      - traefik.http.routers.varnish.tls=true
+#      - traefik.http.routers.varnish.tls.certresolver=letsencrypt
+#      - traefik.http.services.varnish.loadbalancer.server.port=80
