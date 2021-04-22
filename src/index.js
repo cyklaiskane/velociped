@@ -77,6 +77,18 @@ var map = L.map(element, {
 
 
 const routing = new L.Routing.control({
+  lineOptions: {
+    styles: [
+      { color: 'black', opacity: 0.7, weight: 10, },
+      { color: 'white', opacity: 0.5, weight: 6, },
+    ],
+  },
+  altLineOptions: {
+    styles: [
+      { color: 'black', opacity: 0.4, weight: 10 },
+      { color: 'white', opacity: 0.4, weight: 6 },
+    ]
+  },
   waypoints: state.waypoints,
   router: new Router({serviceUrl: apiBaseUrl}),
   routeLine: function(route, options) {
