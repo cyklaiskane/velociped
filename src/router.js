@@ -31,40 +31,44 @@ export default L.Class.extend({
       method: 'POST',
       body: JSON.stringify(query),
     })
-    .then(response => response.json())
-    .then(data => {
-      if (data.error) {
-        throw data.error;
-      }
-      const result = data.map(route => {
-        const coordinates = route.segments.map(segment => L.GeoJSON.coordsToLatLngs(segment.coords)).flat();
-        return {
-          name: route.name,
-          summary: {totalTime: route.duration, totalDistance: route.length},
-          coordinates: coordinates,
-          segments: route.segments,
-          inputWaypoints: waypoints,
-          waypoints: [],
-          instructions: route.segments.map(segment => {
-            const name = segment.name || '';
-            return {
-              distance: segment.length,
-              time: segment.duration,
-              text: `${segment.ts_klass} ${name}`,
-            }
-          }),
+      .then(response => response.json())
+      .then(data => {
+        if (data.error) {
+          throw data.error;
         }
-      });
+        const result = data.map(route => {
+          const coordinates = route.segments.map(segment => L.GeoJSON.coordsToLatLngs(segment.coords)).flat();
+          let index = 0;
+          return {
+            name: route.name,
+            summary: { totalTime: route.duration, totalDistance: route.length },
+            coordinates: coordinates,
+            segments: route.segments,
+            inputWaypoints: waypoints,
+            waypoints: [],
+            instructions: this.options.showInstructions ? route.segments.map(segment => {
+              const name = segment.name || '';
+              const instruction = {
+                distance: segment.length,
+                time: segment.duration,
+                text: `${segment.ts_klass} ${name}`,
+                index: index,
+              }
+              index += segment.coords.length;
+              return instruction;
+            }) : [],
+          }
+        });
 
-      callback.call(context, null, result);
-    })
-    .catch(error => {
-      console.log(error);
-      callback.call(context, error, null);
-    })
-    .finally(() => {
-      spinner.style.visibility = 'hidden';
-      spinner.style.opacity = 0;
-    });
+        callback.call(context, null, result);
+      })
+      .catch(error => {
+        console.log(error);
+        callback.call(context, error, null);
+      })
+      .finally(() => {
+        spinner.style.visibility = 'hidden';
+        spinner.style.opacity = 0;
+      });
   },
 });
