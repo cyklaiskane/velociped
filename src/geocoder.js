@@ -3,52 +3,52 @@ import L from 'leaflet';
 
 export default L.Class.extend({
   options: {
-    serviceUrl: '/v1/geocoder',
+    serviceUrl: '',
   },
 
   initialize: function(options) {
     L.Util.setOptions(this, options);
   },
 
-  geocode: function(query, callback, context) {
-    fetch(this.options.serviceUrl + `/search/${query}`)
-    .then(response => response.json())
-    .then(data => {
-      const results = [];
+  geocode: function (query, callback, context) {
+    fetch(this.options.serviceUrl + `/v1/geocoder/search/${query}`)
+      .then(response => response.json())
+      .then(data => {
+        const results = [];
 
-      for (const item of data) {
-        let loc = L.latLng(item.lat, item.lng);
-        results.push({
-          name: item.name,
-          center: loc,
-          bounds: L.latLngBounds(loc, loc),
-          properties: item,
-        });
-      }
-      callback.call(context, results);
-    })
-    .catch(error => {
-      console.log(error);
-    })
+        for (const item of data) {
+          let loc = L.latLng(item.lat, item.lng);
+          results.push({
+            name: item.name,
+            center: loc,
+            bounds: L.latLngBounds(loc, loc),
+            properties: item,
+          });
+        }
+        callback.call(context, results);
+      })
+      .catch(error => {
+        console.log(error);
+      })
   },
 
-  reverse: function(location, scale, callback, context) {
-    fetch(this.options.serviceUrl + `/reverse/${location.lat},${location.lng}`)
-    .then(response => response.json())
-    .then(data => {
-      const results = [];
+  reverse: function (location, scale, callback, context) {
+    fetch(this.options.serviceUrl + `/v1/geocoder/reverse/${location.lat},${location.lng}`)
+      .then(response => response.json())
+      .then(data => {
+        const results = [];
 
-      let loc = L.latLng(data.lat, data.lng);
-      results.push({
-        name: data.name,
-        center: loc,
-        bounds: L.latLngBounds(loc, loc),
-        properties: data,
-      });
-      callback.call(context, results);
-    })
-    .catch(error => {
-      console.log(error);
-    })
+        let loc = L.latLng(data.lat, data.lng);
+        results.push({
+          name: data.name,
+          center: loc,
+          bounds: L.latLngBounds(loc, loc),
+          properties: data,
+        });
+        callback.call(context, results);
+      })
+      .catch(error => {
+        console.log(error);
+      })
   }
 });

@@ -82,8 +82,8 @@ const routing = new L.Routing.control({
   routeLine: function(route, options) {
     return new Line(route, options, tsStyles);
   },
-  geocoder: new Geocoder(), //L.Control.Geocoder.latLng(), //null //new Velocoder(), //L.Control.Geocoder.nominatim(),
-  createMarker: function(i, wp) {
+  geocoder: new Geocoder({ 'serviceUrl': apiBaseUrl }), //L.Control.Geocoder.latLng(), //null //new Velocoder(), //L.Control.Geocoder.nominatim(),
+  createMarker: function (i, wp) {
     return L.marker(wp.latLng, {
       icon: L.icon.glyph({
         prefix: '',
