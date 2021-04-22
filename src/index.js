@@ -26,7 +26,7 @@ import Line from './line.js';
 import Geocoder from './geocoder.js';
 import GpxControl from './gpx-control.js';
 import ProfileControl from './profile-control.js';
-import InfoControl from './info-control.js';
+//import InfoControl from './info-control.js';
 
 import tsStyles from './ts-styles.js';
 import state from './state.js';
