@@ -96,7 +96,6 @@ const routing = new L.Routing.control({
   waypoints: state.waypoints,
   router: new Router({ serviceUrl: apiBaseUrl, showInstructions: false }),
   routeLine: function (route, options) {
-    console.log(options)
     return new Line(route, options, tsStyles);
   },
   geocoder: new Geocoder({ 'serviceUrl': apiBaseUrl }), //L.Control.Geocoder.latLng(), //null //new Velocoder(), //L.Control.Geocoder.nominatim(),
