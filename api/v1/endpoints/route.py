@@ -14,15 +14,28 @@ router = APIRouter()
 
 @router.post('')
 async def route(
-    query: RouteQuery, request: Request, output: str = 'routes',
+    query: RouteQuery,
+    request: Request,
+    output: str = 'routes',
 ) -> Union[List, JSONResponse]:
     routes = []
+
+    logging.debug(query)
+    profile_names = (
+        [query.profile_name]
+        if isinstance(query.profile_name, str)
+        else query.profile_name
+    )
+    logging.debug(profile_names)
 
     try:
         results = await asyncio.gather(
             *[
                 do_route(query.waypoints, profile)
-                for profile in [profiles.get(query.profile_name)]
+                for profile in [
+                    profiles.get(profile_name, False) for profile_name in profile_names
+                ]
+                if profile is not None
             ]
         )
     except Exception as e:

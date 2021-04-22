@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Any, Dict, List, Literal, Optional, Tuple
+from typing import Any, Dict, List, Literal, Optional, Tuple, Union
 from uuid import UUID
 
 from pydantic import BaseModel
@@ -16,7 +16,7 @@ class LatLng(BaseModel):
 
 class RouteQuery(BaseModel):
     waypoints: List[LatLng]
-    profile_name: Optional[str] = None
+    profile_name: Optional[Union[str, list]] = None
 
 
 class Segment(BaseModel):

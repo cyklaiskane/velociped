@@ -17,11 +17,15 @@ class ProfileStore:
         for item in items:
             self.store.append(RouteProfile(**item))
 
-    def get(self, name: Optional[str] = None) -> RouteProfile:
+    def get(
+        self, name: Optional[str] = None, use_fallback: bool = True
+    ) -> Optional[RouteProfile]:
         for profile in self.store:
             if name == profile.name:
                 return profile
-        return self.store[0]
+        if use_fallback:
+            return self.store[0]
+        return None
 
 
 profiles = ProfileStore()
