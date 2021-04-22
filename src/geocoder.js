@@ -6,7 +6,7 @@ export default L.Class.extend({
     serviceUrl: '',
   },
 
-  initialize: function(options) {
+  initialize: function (options) {
     L.Util.setOptions(this, options);
   },
 

@@ -8,15 +8,15 @@ export default L.Class.extend({
     showInstructions: true,
   },
 
-  initialize: function(options) {
-      L.Util.setOptions(this, options);
+  initialize: function (options) {
+    L.Util.setOptions(this, options);
 
-      const spinner = L.DomUtil.create('div', 'spinner');
-      this.spinner = spinner;
-      document.body.appendChild(spinner);
+    const spinner = L.DomUtil.create('div', 'spinner');
+    this.spinner = spinner;
+    document.body.appendChild(spinner);
   },
 
-  route: function(waypoints, callback, context, options) {
+  route: function (waypoints, callback, context, options) {
     const query = {
       waypoints: waypoints.map(waypoint => waypoint.latLng),
       profile_name: state.profile,

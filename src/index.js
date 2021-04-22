@@ -38,8 +38,8 @@ element.id = 'map';
 document.body.appendChild(element);
 
 const vtStyles = {
-  roads: function(properties, zoom, geometryDimension) {
-    const style = tsStyles[properties.ts_klass] || {color: 'grey', opacity: 1, weight: 3};
+  roads: function (properties, zoom, geometryDimension) {
+    const style = tsStyles[properties.ts_klass] || { color: 'grey', opacity: 1, weight: 3 };
     return {
       color: style.color,
       opacity: 0.7,
@@ -94,8 +94,9 @@ const routing = new L.Routing.control({
   },
   position: 'topleft',
   waypoints: state.waypoints,
-  router: new Router({serviceUrl: apiBaseUrl}),
-  routeLine: function(route, options) {
+  router: new Router({ serviceUrl: apiBaseUrl, showInstructions: false }),
+  routeLine: function (route, options) {
+    console.log(options)
     return new Line(route, options, tsStyles);
   },
   geocoder: new Geocoder({ 'serviceUrl': apiBaseUrl }), //L.Control.Geocoder.latLng(), //null //new Velocoder(), //L.Control.Geocoder.nominatim(),
@@ -112,11 +113,11 @@ const routing = new L.Routing.control({
 
 const baseMaps = {
   'Bakgrund': backgroundTiles,
-  //'MVT bg': bgMvt,
+  'MVT bg': bgMvt,
 };
 
 const overlayMaps = {
-  //'TS MVT': tsMvt,
+  'TS MVT': tsMvt,
   'Trafiksäkerhetsklassning': tsTiles,
 };
 
@@ -126,31 +127,31 @@ L.control.layers(baseMaps, overlayMaps, {
 }).addTo(map);
 
 function createButton(label, container) {
-    var btn = L.DomUtil.create('button', '', container);
-    btn.setAttribute('type', 'button');
-    btn.innerHTML = label;
-    return btn;
+  var btn = L.DomUtil.create('button', '', container);
+  btn.setAttribute('type', 'button');
+  btn.innerHTML = label;
+  return btn;
 }
 
-map.on('contextmenu', function(e) {
-    const container = L.DomUtil.create('div'),
-        startBtn = createButton('Start', container),
-        destBtn = createButton('Mål', container);
+map.on('click', function (e) {
+  const container = L.DomUtil.create('div'),
+    startBtn = createButton('Start', container),
+    destBtn = createButton('Mål', container);
 
-    L.popup()
-      .setContent(container)
-      .setLatLng(e.latlng)
-      .openOn(map);
+  L.popup()
+    .setContent(container)
+    .setLatLng(e.latlng)
+    .openOn(map);
 
-    L.DomEvent.on(startBtn, 'click', function() {
-      routing.spliceWaypoints(0, 1, e.latlng);
-      map.closePopup();
-    });
+  L.DomEvent.on(startBtn, 'click', function () {
+    routing.spliceWaypoints(0, 1, e.latlng);
+    map.closePopup();
+  });
 
-    L.DomEvent.on(destBtn, 'click', function() {
-      routing.spliceWaypoints(routing.getWaypoints().length - 1, 1, e.latlng);
-      map.closePopup();
-    });
+  L.DomEvent.on(destBtn, 'click', function () {
+    routing.spliceWaypoints(routing.getWaypoints().length - 1, 1, e.latlng);
+    map.closePopup();
+  });
 });
 
 //new InfoControl({position: 'topleft'}).addTo(map);
