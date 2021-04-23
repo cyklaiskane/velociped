@@ -15,6 +15,11 @@ module.exports = {
     new webpack.EnvironmentPlugin({
       API_BASE_URL: '',
     }),
+    new webpack.IgnorePlugin({
+      checkResource(resource) {
+        return resource == 'osrm-text-instructions';
+      }
+    }),
   ],
   output: {
     filename: 'bundle.js',
