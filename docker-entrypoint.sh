@@ -6,7 +6,7 @@ set -e
 
 # first arg is not an executable
 if ! which -- "${1}"; then
-  set -- python -m "$@"
+  set -- python3 -m "$@"
 fi
 
 exec "$@"

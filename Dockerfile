@@ -19,13 +19,22 @@ RUN npm run build
 #
 # Base
 #
-FROM python:3.8-alpine as base
+FROM debian:bullseye-slim as base
 
 # set environment variables
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PYTHONHASHSEED=random \
     PYTHONFAULTHANDLER=1
+
+RUN set -eux; \
+    export DEBIAN_FRONTEND=noninteractive; \
+    apt-get update; \
+    apt-get -y --no-install-recommends install \
+        python3; \
+    apt-get -y --purge autoremove; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
@@ -38,21 +47,40 @@ ENV PIP_DEFAULT_TIMEOUT=100 \
     PIP_DISABLE_PIP_VERSION_CHECK=1 \
     PIP_NO_CACHE_DIR=1
 
-RUN apk add --no-cache build-base libressl-dev libffi-dev gcc musl-dev gdal-dev \
-      python3-dev libxml2-dev libxslt-dev postgresql-dev geos-dev proj-dev proj-util
+#RUN apk add --no-cache build-base libressl-dev libffi-dev gcc musl-dev gdal-dev \
+#    python3-dev libxml2-dev libxslt-dev postgresql-dev geos-dev proj-dev proj-util
 
-RUN pip install poetry
+
+RUN set -eux; \
+    export DEBIAN_FRONTEND=noninteractive; \
+    apt-get update; \
+    apt-get -y --no-install-recommends install \
+        python3-dev \
+        python3-pip \
+        python3-venv \
+        build-essential \
+        libpq-dev \
+        libproj-dev \
+        proj-bin \
+        libgdal-dev; \
+    apt-get -y --purge autoremove; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*
+
+RUN set -eux; \
+    pip3 install -U poetry
+
 
 COPY pyproject.toml poetry.lock ./
 
 ARG BUILD_ENV=dev
 
-RUN set -euxo pipefail; \
-    python -m venv /venv; \
+RUN set -eux; \
+    python3 -m venv /venv; \
     POETRY_ARGS=""; \
     [ "${BUILD_ENV}" = "dev" ] && POETRY_ARGS="--dev"; \
     poetry export $POETRY_ARGS -f requirements.txt \
-      | /venv/bin/pip install -r /dev/stdin
+        | /venv/bin/pip install -r /dev/stdin
 
 
 #
@@ -60,7 +88,18 @@ RUN set -euxo pipefail; \
 #
 FROM base as final
 
-RUN apk add --no-cache libffi libpq geos proj-util gdal
+#RUN apk add --no-cache libffi libpq geos proj-util gdal
+
+RUN set -eux; \
+    export DEBIAN_FRONTEND=noninteractive; \
+    apt-get update; \
+    apt-get -y --no-install-recommends install \
+        python3-distutils \
+        proj-bin \
+        libgdal28; \
+    apt-get -y --purge autoremove; \
+    apt-get clean; \
+    rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /venv /venv
 COPY . ./
