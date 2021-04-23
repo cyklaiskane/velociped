@@ -54,6 +54,7 @@ services:
 
   api:
     image: velociped
+    restart: on-failure
     logging: *logging-options
     depends_on:
       - db
@@ -64,7 +65,7 @@ services:
       - GEODATA_URL=${GEODATA_URL:-wfs:http://geodata.skane.se:8080/geoserver/wfs}
       - GEODATA_LAYER=${GEODATA_LAYER:-rs:cyklaiskane_trafiksakerhetsklassat_natverk}
       - GEODATA_BBOX
-      - GEODATA_UPDATE_INIT={GEODATA_UPDATE_INIT:-False}
+      - GEODATA_UPDATE_INIT=${GEODATA_UPDATE_INIT:-False}
       - TILES_TS_URL=${TILES_TS_URL:-https://maps.cyklaiskane.se/trafiksakerhet/{z}/{x}/{y}.png}
       - TILES_BG_URL=${TILES_BG_URL:-https://maps.cyklaiskane.se/nedtonad/{z}/{x}/{y}.png}
     ports:
