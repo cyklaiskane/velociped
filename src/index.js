@@ -2,7 +2,6 @@ import _ from 'lodash';
 import L from 'leaflet';
 import 'leaflet.vectorgrid'
 import 'leaflet-routing-machine';
-import 'leaflet-control-geocoder';
 import 'leaflet.icon.glyph';
 
 import './style.css';
@@ -68,8 +67,6 @@ const bounds = L.latLngBounds(
 );
 
 var map = L.map(element, {
-  //center: [55.665193184436035, 13.355383872985841],
-  //zoom: 14,
   layers: [backgroundTiles],
   zoomControl: false,
 })
@@ -77,7 +74,7 @@ var map = L.map(element, {
   .fitBounds(bounds);
 
 
-const routing = new L.Routing.control({
+const routing = new L.Routing.Control({
   language: 'sv',
   showAlternatives: true,
   lineOptions: {
@@ -118,7 +115,7 @@ const routing = new L.Routing.control({
   routeLine: function (route, options) {
     return new Line(route, options, tsStyles);
   },
-  geocoder: new Geocoder({ 'serviceUrl': apiBaseUrl }), //L.Control.Geocoder.latLng(), //null //new Velocoder(), //L.Control.Geocoder.nominatim(),
+  geocoder: new Geocoder({ 'serviceUrl': apiBaseUrl }),
   createMarker: function (i, wp) {
     return L.marker(wp.latLng, {
       icon: L.icon.glyph({
@@ -173,11 +170,9 @@ map.on('click', function (e) {
   });
 });
 
-//new InfoControl({position: 'topleft'}).addTo(map);
 new ProfileControl({ position: 'topleft', baseUrl: apiBaseUrl, routing: routing }).addTo(map);
 new GpxControl({ position: 'bottomleft', routing: routing }).addTo(map);
 L.control.zoom({
   position: 'bottomleft'
 }).addTo(map);
 
-L.Routing.errorControl(routing).addTo(map);
