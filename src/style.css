@@ -78,3 +78,19 @@ html, body {
   z-index: 100;
   float: none !important;
 }
+
+.leaflet-routing-alt-gpx-export {
+  position: absolute;
+  right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
+  margin: 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.leaflet-routing-alt-gpx-export:hover {
+  background-color: #eee;
+}
+

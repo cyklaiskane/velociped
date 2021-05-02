@@ -20,10 +20,11 @@ L.Icon.Default.mergeOptions({
   shadowUrl: iconShadow,
 });
 
+import Control from './control.js';
 import Router from './router.js';
 import Line from './line.js';
 import Geocoder from './geocoder.js';
-import GpxControl from './gpx-control.js';
+//import GpxControl from './gpx-control.js';
 import ProfileControl from './profile-control.js';
 //import InfoControl from './info-control.js';
 
@@ -74,7 +75,7 @@ var map = L.map(element, {
   .fitBounds(bounds);
 
 
-const routing = new L.Routing.Control({
+const routing = new Control({
   language: 'sv',
   showAlternatives: true,
   lineOptions: {
@@ -171,8 +172,8 @@ map.on('click', function (e) {
 });
 
 new ProfileControl({ position: 'topleft', baseUrl: apiBaseUrl, routing: routing }).addTo(map);
-new GpxControl({ position: 'bottomleft', routing: routing }).addTo(map);
 L.control.zoom({
   position: 'bottomleft'
 }).addTo(map);
+//new GpxControl({ position: 'bottomleft', routing: routing }).addTo(map);
 
