@@ -3,10 +3,14 @@ import L from 'leaflet';
 import 'leaflet.vectorgrid'
 import 'leaflet-routing-machine';
 import 'leaflet.icon.glyph';
+import 'leaflet.locatecontrol';
+
+import '@fortawesome/fontawesome-free/css/all.css'
 
 import './style.css';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
+import 'leaflet.locatecontrol/dist/L.Control.Locate.css';
 
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
@@ -74,6 +78,13 @@ var map = L.map(element, {
   .setMaxBounds(bounds)
   .fitBounds(bounds);
 
+L.control.zoom({
+  position: 'topright'
+}).addTo(map);
+
+L.control.locate({
+  position: 'topright'
+}).addTo(map);
 
 const routing = new Control({
   language: 'sv',
@@ -172,8 +183,5 @@ map.on('click', function (e) {
 });
 
 new ProfileControl({ position: 'topleft', baseUrl: apiBaseUrl, routing: routing }).addTo(map);
-L.control.zoom({
-  position: 'bottomleft'
-}).addTo(map);
 //new GpxControl({ position: 'bottomleft', routing: routing }).addTo(map);
 
