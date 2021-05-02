@@ -6,6 +6,15 @@ import { saveAs } from 'file-saver';
 import { buildGPX, BaseBuilder } from 'gpx-builder';
 
 export default L.Routing.Control.extend({
+  options: {
+    collapseBtn: function (itinerary) {
+      let collapseBtn = L.DomUtil.create('span', itinerary.options.collapseBtnClass);
+      collapseBtn.innerHTML = '<span class="fa fa-route"></span>';
+      L.DomEvent.on(collapseBtn, 'click', itinerary._toggle, itinerary);
+      itinerary._container.insertBefore(collapseBtn, itinerary._container.firstChild);
+    }
+  },
+
   initialize: function (options) {
     console.log(options);
     L.Routing.Control.prototype.initialize.call(this, options);
@@ -15,7 +24,7 @@ export default L.Routing.Control.extend({
     console.log(i, alt);
     const altDiv = L.Routing.Control.prototype._createAlternative.call(this, alt, i);
     const exportBtn = L.DomUtil.create('button', 'leaflet-routing-alt-gpx-export');
-    exportBtn.innerText = '📥';
+    exportBtn.innerHTML = '<span class="fas fa-file-download"></span>'; //'📥';
     exportBtn.setAttribute('type', 'button');
     L.DomEvent.disableClickPropagation(exportBtn);
     L.DomEvent.on(exportBtn, 'click', function (e) {

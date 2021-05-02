@@ -7,10 +7,11 @@ import 'leaflet.locatecontrol';
 
 import '@fortawesome/fontawesome-free/css/all.css'
 
-import './style.css';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet-routing-machine/dist/leaflet-routing-machine.css';
 import 'leaflet.locatecontrol/dist/L.Control.Locate.css';
+
+import './style.css';
 
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconRetina from 'leaflet/dist/images/marker-icon-2x.png';
@@ -87,6 +88,7 @@ L.control.locate({
 }).addTo(map);
 
 const routing = new Control({
+  collapsible: true,
   language: 'sv',
   showAlternatives: true,
   lineOptions: {

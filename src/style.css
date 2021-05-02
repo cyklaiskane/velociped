@@ -94,3 +94,36 @@ html, body {
   background-color: #eee;
 }
 
+.leaflet-routing-collapse-btn {
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.leaflet-routing-collapse-btn:hover {
+  color: #000;
+}
+
+.leaflet-routing-collapse-btn:after {
+  content: none;
+}
+
+.leaflet-control-container .leaflet-routing-container-hide {
+  padding: 0px;
+  width: 48px;
+  height: 48px;
+}
+
+.leaflet-routing-container-hide .leaflet-routing-collapse-btn {
+  background-image: none;
+  display: block;
+  margin: 0px;
+  padding: 0px;
+  left: 10px;
+  top: 6px;
+  width: 24px;
+  height: 24px;
+}
+
+.leaflet-control-layers-list {
+  width: 300px;
+}
