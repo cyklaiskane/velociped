@@ -20,7 +20,7 @@ export default L.Control.extend({
       .then(data => {
         console.log(state.profile);
         if (state.profile === null) {
-          state.profile = data[0].name;
+          state.profile = data.map(profile => profile.name);
         }
         for (let profile of data) {
           let opt = L.DomUtil.create('option');
