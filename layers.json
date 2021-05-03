@@ -8,6 +8,15 @@
             "options": {
                 "attribution": "Region Skåne / Lantmäteriet"
             }
+        },
+        {
+            "type": "tms",
+            "name": "Flygfoto",
+            "description": "Orto <i>bakgrundskarta</i>",
+            "url": "https://geodata.skane.se/geoserver/gwc/service/tms/1.0.0/lm%3Aorto@EPSG%3A900913@jpeg/{z}/{x}/{y}.jpg",
+            "options": {
+                "attribution": "Lantmäteriet"
+            }
         }
     ],
     "overlays": [
