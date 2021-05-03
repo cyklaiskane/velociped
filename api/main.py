@@ -57,7 +57,11 @@ templates = Jinja2Templates(directory='templates')
 async def index(request: Request) -> Any:
     return templates.TemplateResponse(
         'index.html',
-        {'request': request, 'tsUrl': TILES_TS_URL, 'bgUrl': TILES_BG_URL,},
+        {
+            'request': request,
+            'tsUrl': TILES_TS_URL,
+            'bgUrl': TILES_BG_URL,
+        },
     )
 
 
@@ -100,7 +104,9 @@ async def startup() -> None:
         access_token_url=LM_TOKEN_URL,
         client_kwargs={
             'grant_type': 'client_credentials',
-            'headers': {'Accept': 'application/json',},
+            'headers': {
+                'Accept': 'application/json',
+            },
         },
         api_base_url=LM_ADDRESS_BASE_URL,
     )
