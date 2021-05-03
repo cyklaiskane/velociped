@@ -21,22 +21,21 @@ async def route(
     routes = []
 
     logging.debug(query)
-    profile_names = (
-        [query.profile_name]
-        if isinstance(query.profile_name, str)
-        else query.profile_name
-    )
-    logging.debug(profile_names)
+    use_profiles = []
+    if query.profile_name is None:
+        use_profiles = profiles.store
+    elif isinstance(query.profile_name, str):
+        use_profiles = [profiles.get(query.profile_name, False)]
+    else:
+        use_profiles = [
+            profiles.get(profile_name, False) for profile_name in query.profile_name
+        ]
+    if not use_profiles:
+        return JSONResponse(content={'error': 'No profiles found'}, status_code=500)
 
     try:
         results = await asyncio.gather(
-            *[
-                do_route(query.waypoints, profile)
-                for profile in [
-                    profiles.get(profile_name, False) for profile_name in profile_names
-                ]
-                if profile is not None
-            ]
+            *[do_route(query.waypoints, profile) for profile in use_profiles]
         )
     except Exception as e:
         logging.warn(e)
