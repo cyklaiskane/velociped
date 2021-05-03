@@ -2,6 +2,7 @@ import logging
 from typing import Any
 
 from fastapi import FastAPI, Request
+from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from fastapi_utils.tasks import repeat_every
@@ -63,6 +64,11 @@ async def index(request: Request) -> Any:
 @app.get('/ping')
 async def ping() -> str:
     return 'ok'
+
+
+@app.get('/favicon.ico')
+async def favicon() -> FileResponse:
+    return FileResponse('static/favicon.ico')
 
 
 @app.on_event('startup')
