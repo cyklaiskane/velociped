@@ -8,10 +8,7 @@ class State {
   _update(waypoints, profiles) {
     let hash = waypoints.map(waypoint => `${waypoint.lat},${waypoint.lng}`);
     if (profiles) {
-      //hash.push(profiles.join(','));
-      console.log('state:incoming profiles', profiles);
       this._profiles.splice(0, this._profiles.length, ...profiles);
-      console.log('state:updated profiles', this._profiles);
     }
     window.location.hash = hash.join(';');
   }

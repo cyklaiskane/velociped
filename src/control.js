@@ -18,12 +18,12 @@ export default L.Routing.Control.extend({
   },
 
   initialize: function (options) {
-    console.log(options);
     L.setOptions(this, options);
+
     fetch(this.options.serviceUrl + '/v1/route/profiles')
       .then(response => response.json())
       .then(data => {
-        console.log(data, state.profile);
+        console.log('profiles.json:', data);
         state.profile = data.map(profile => profile.name);
       });
 
@@ -31,7 +31,6 @@ export default L.Routing.Control.extend({
   },
 
   _createAlternative: function (alt, i) {
-    console.log(i, alt);
     const altDiv = L.Routing.Control.prototype._createAlternative.call(this, alt, i);
     const exportBtn = L.DomUtil.create('button', 'leaflet-routing-alt-gpx-export');
     exportBtn.innerHTML = '<span class="fas fa-file-download"></span>'; //'📥';
