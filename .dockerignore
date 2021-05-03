@@ -8,3 +8,5 @@
 !pyproject.toml
 !webpack.*.js
 !profiles.json
+!layers.json
+!favicon.ico
