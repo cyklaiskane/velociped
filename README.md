@@ -363,6 +363,31 @@ profiles.json
 Ska man ändra vilken/vilka attribut som används för ruttberäkning behöver man bekanta sig med hela kodbasen och då främst med `api/v1/utils/route.py`.
 
 
+### Lager
+
+Kartlager definers i en fil med namnet `layers.json` i bas-katalogen. Formatet för filen är följande:
+
+```json
+{
+  "backgrounds": [
+    {
+      "type": "tms" eller "tiles" eller "wms",
+      "url": "https://example.com/standard/leaflet/layer/url/{z}/{x}/{y}.png",
+      "name": "Namn på lagret",
+      "description": "Beskrivning av lagret. T.ex. symboler och annat. Kan innehålla <b>HTML</b>",
+      "options": {
+        "attribution": "Standard Leaflet lager 'options'"
+      }
+    }
+  ],
+  "overlays": [
+    {}
+  ]
+}
+```
+
+Rotobjektet innehåller bör innehålla attributen `backgrounds` och `overlays` som är listor med lagerdefinitioner. Den förstnämnda anger bakgrundkartor och den senare överliggande lager. Varje lagerdefinition är ett objekt som måste innehålla attributen `type`, `url`, och `name`. Lagerdefinitionen kan även ha attributen `description` som tillåter en mer utförlig beskrivning av lagerinnehållet och kan innehålla HTML. Attributen `options` är ett objekt som direkt skickas vidare till Leaflet-lagret som skapas och kan innehålla de parametrar som beskrivs i Leafelts (dokumentation)[https://leafletjs.com/reference-1.7.1.html#tilelayer].
+
 ## Enkel driftsättning
 
 Tjänsten är utvecklad för att köras i Region Skånes Azure-miljö på en virtuell maskin som kör Debian 11 eller senare. För att förbereda maskinen och starta tjänsten följer nedan en samling kommandon.
