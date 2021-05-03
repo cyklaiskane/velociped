@@ -53,27 +53,12 @@ const vtStyles = {
   }
 };
 
-const backgroundTiles = L.tileLayer(typeof backgroundTilesUrl !== 'undefined' ? backgroundTilesUrl : 'http://localhost:3000/styles/bg/{z}/{x}/{y}.png', {});
-
-const tsMvt = L.vectorGrid.protobuf(apiBaseUrl + '/v1/tiles/ts/{z}/{x}/{y}.pbf', {
-  renderFactory: L.canvas.tile,
-  vectorTileLayerStyles: vtStyles,
-});
-
-const bgMvt = L.vectorGrid.protobuf(apiBaseUrl + '/v1/tiles/bg/{z}/{x}/{y}.pbf', {
-  renderFactory: L.canvas.tile,
-  //vectorTileLayerStyles: vtStyles,
-});
-
-const tsTiles = L.tileLayer(typeof tsTilesUrl !== 'undefined' ? tsTilesUrl : 'http://localhost:3000/styles/velo/{z}/{x}/{y}.png', {});
-
 const bounds = L.latLngBounds(
   L.latLng(55.1232, 12.4374),
   L.latLng(56.5354, 14.5959)
 );
 
 var map = L.map(element, {
-  layers: [backgroundTiles],
   zoomControl: false,
 })
   .setMaxBounds(bounds)
@@ -142,20 +127,46 @@ const routing = new Control({
   },
 }).addTo(map);
 
-const baseMaps = {
-  'Bakgrund': backgroundTiles,
-  'MVT bg': bgMvt,
-};
+function initLayers(lyrs, map) {
+  const createLayer = layer => {
+    const options = layer.options ?? {};
+    options.tms = layer.type == 'tms';
 
-const overlayMaps = {
-  'TS MVT': tsMvt,
-  'Trafiksäkerhetsklassning': tsTiles,
-};
+    const l = L.tileLayer(layer.url, options);
+    const title = L.Util.template(
+      '{name} <p>{description}</p>',
+      {
+        name: layer.name,
+        description: layer.description ?? ''
+      }
+    );
 
-L.control.layers(baseMaps, overlayMaps, {
-  position: 'bottomleft',
-  hideSingleBase: true,
-}).addTo(map);
+    return [title, l];
+  }
+  const layers = L.extend({ backgrounds: [], overlays: [] }, lyrs);
+  const baseMaps = Object.fromEntries(layers.backgrounds.map(layer => createLayer(layer)));
+  const overlayMaps = Object.fromEntries(layers.overlays.map(layer => createLayer(layer)));;
+  overlayMaps['Trafiksäkerhetsklassning (vektor)'] = L.vectorGrid.protobuf(apiBaseUrl + '/v1/tiles/ts/{z}/{x}/{y}.pbf', {
+    renderFactory: L.canvas.tile,
+    vectorTileLayerStyles: vtStyles,
+    minZoom: 13,
+  })
+
+  baseMaps[Object.keys(baseMaps)[0]].addTo(map);
+  return L.control.layers(baseMaps, overlayMaps, {
+    position: 'topleft',
+    hideSingleBase: false,
+    collapsed: true,
+  }).addTo(map);
+}
+
+fetch('layers.json')
+  .then(response => response.json())
+  .then(data => {
+    console.log('layers.json:', data);
+    initLayers(data, map);
+  })
+  .catch(err => console.log(err));
 
 function createButton(label, container) {
   var btn = L.DomUtil.create('button', '', container);
