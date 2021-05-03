@@ -88,6 +88,7 @@ L.control.locate({
 }).addTo(map);
 
 const routing = new Control({
+  serviceUrl: apiBaseUrl,
   collapsible: true,
   language: 'sv',
   showAlternatives: true,
@@ -184,6 +185,6 @@ map.on('click', function (e) {
   });
 });
 
-new ProfileControl({ position: 'topleft', baseUrl: apiBaseUrl, routing: routing }).addTo(map);
+//new ProfileControl({ position: 'topleft', baseUrl: apiBaseUrl, routing: routing }).addTo(map);
 //new GpxControl({ position: 'bottomleft', routing: routing }).addTo(map);
 

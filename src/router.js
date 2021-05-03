@@ -20,7 +20,7 @@ export default L.Class.extend({
   route: function (waypoints, callback, context, options) {
     const query = {
       waypoints: waypoints.map(waypoint => waypoint.latLng),
-      profile_name: state.profile,
+      profile_name: null, //state.profile,
     }
     const spinner = this.spinner;
 

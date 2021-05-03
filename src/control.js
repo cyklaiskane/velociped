@@ -5,6 +5,8 @@ import 'leaflet-routing-machine';
 import { saveAs } from 'file-saver';
 import { buildGPX, BaseBuilder } from 'gpx-builder';
 
+import state from './state.js';
+
 export default L.Routing.Control.extend({
   options: {
     collapseBtn: function (itinerary) {
@@ -17,6 +19,14 @@ export default L.Routing.Control.extend({
 
   initialize: function (options) {
     console.log(options);
+    L.setOptions(this, options);
+    fetch(this.options.serviceUrl + '/v1/route/profiles')
+      .then(response => response.json())
+      .then(data => {
+        console.log(data, state.profile);
+        state.profile = data.map(profile => profile.name);
+      });
+
     L.Routing.Control.prototype.initialize.call(this, options);
   },
 

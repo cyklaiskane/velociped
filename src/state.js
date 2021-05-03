@@ -1,12 +1,17 @@
 import L from 'leaflet';
 
 class State {
-  constructor() { }
+  constructor() {
+    this._profiles = [];
+  }
 
   _update(waypoints, profiles) {
     let hash = waypoints.map(waypoint => `${waypoint.lat},${waypoint.lng}`);
     if (profiles) {
-      hash.push(profiles.join(','));
+      //hash.push(profiles.join(','));
+      console.log('state:incoming profiles', profiles);
+      this._profiles.splice(0, this._profiles.length, ...profiles);
+      console.log('state:updated profiles', this._profiles);
     }
     window.location.hash = hash.join(';');
   }
@@ -23,13 +28,14 @@ class State {
   }
 
   set waypoints(wps) {
-    this._update(wps.map(waypoint => waypoint.latLng), this.profile);
+    this._update(wps.map(waypoint => waypoint.latLng), this._profiles);
   }
 
   get profile() {
-    const match = window.location.hash.match(/[a-z][a-z,]+/);
-    console.log(match)
-    return match ? match[0].split(',') : null;
+    //const match = window.location.hash.match(/[a-z][a-z,]+/);
+    //console.log(match)
+    //return match ? match[0].split(',') : null;
+    return this._profiles;
   }
 
   set profile(name) {
