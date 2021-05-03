@@ -72,7 +72,12 @@ async def ping() -> str:
 
 @app.get('/favicon.ico')
 async def favicon() -> FileResponse:
-    return FileResponse('static/favicon.ico')
+    return FileResponse('favicon.ico')
+
+
+@app.get('/layers.json')
+async def favicon() -> FileResponse:
+    return FileResponse('layers.json')
 
 
 @app.on_event('startup')
