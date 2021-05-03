@@ -72,6 +72,7 @@ services:
       - 8000:8000
     volumes:
       - ./profiles.json:/app/profiles.json
+      - ./layers.json:/app/layers.json
     labels:
       - traefik.enable=true
       - traefik.http.routers.api.rule=Host(`${API_ADDRESS:-api.cyklaiskane.se}`)
