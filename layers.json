@@ -3,7 +3,7 @@
         {
             "type": "tms",
             "name": "Topografisk",
-            "description": "Foo bar baz, <b>quuuz</b>",
+            "description": "Nedtonad topografisk <i>bakgrundskarta</i>",
             "url": "https://geodata.skane.se/geoserver/gwc/service/tms/1.0.0/lm%3Atopowebbkartan_nedtonad@EPSG%3A900913@png/{z}/{x}/{y}.png",
             "options": {
                 "attribution": "Region Skåne / Lantmäteriet"
