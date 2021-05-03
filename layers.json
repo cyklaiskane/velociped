@@ -1,0 +1,42 @@
+{
+    "backgrounds": [
+        {
+            "type": "tms",
+            "name": "Topografisk",
+            "description": "Foo bar baz, <b>quuuz</b>",
+            "url": "https://geodata.skane.se/geoserver/gwc/service/tms/1.0.0/lm%3Atopowebbkartan_nedtonad@EPSG%3A900913@png/{z}/{x}/{y}.png",
+            "options": {
+                "attribution": "Region Skåne / Lantmäteriet"
+            }
+        }
+    ],
+    "overlays": [
+        {
+            "type": "tms",
+            "name": "Basnät för cykling",
+            "url": "https://geodata.skane.se/geoserver/gwc/service/tms/1.0.0/rs%3Acyklaiskane_basnat@EPSG%3A900913@png/{z}/{x}/{y}.png",
+            "options": {
+                "opacity": 0.5,
+                "attribution": "Region Skåne"
+            }
+        },
+        {
+            "type": "tms",
+            "name": "Cykelvägnät",
+            "url": "https://geodata.skane.se/geoserver/gwc/service/tms/1.0.0/rs%3Acyklaiskane_cykelvag@EPSG%3A900913@png/{z}/{x}/{y}.png",
+            "options": {
+                "opacity": 0.5,
+                "attribution": "Region Skåne"
+            }
+        },
+        {
+            "type": "tms",
+            "name": "Cykelleder",
+            "url": "https://geodata.skane.se/geoserver/gwc/service/tms/1.0.0/rs%3Acyklaiskane_lednat@EPSG%3A900913@png/{z}/{x}/{y}.png",
+            "options": {
+                "opacity": 0.5,
+                "attribution": "Region Skåne"
+            }
+        }
+    ]
+}
