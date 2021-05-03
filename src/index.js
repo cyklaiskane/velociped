@@ -29,9 +29,6 @@ import Control from './control.js';
 import Router from './router.js';
 import Line from './line.js';
 import Geocoder from './geocoder.js';
-//import GpxControl from './gpx-control.js';
-import ProfileControl from './profile-control.js';
-//import InfoControl from './info-control.js';
 
 import tsStyles from './ts-styles.js';
 import state from './state.js';
@@ -195,7 +192,4 @@ map.on('click', function (e) {
     map.closePopup();
   });
 });
-
-//new ProfileControl({ position: 'topleft', baseUrl: apiBaseUrl, routing: routing }).addTo(map);
-//new GpxControl({ position: 'bottomleft', routing: routing }).addTo(map);
 

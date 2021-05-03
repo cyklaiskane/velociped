@@ -29,9 +29,6 @@ class State {
   }
 
   get profile() {
-    //const match = window.location.hash.match(/[a-z][a-z,]+/);
-    //console.log(match)
-    //return match ? match[0].split(',') : null;
     return this._profiles;
   }
 
