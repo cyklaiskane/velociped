@@ -74,9 +74,13 @@ html, body {
   clear: both;
 }
 
-.leaflet-routing-geocoders button {
+.leaflet-routing-geocoder * {
+  box-sizing: border-box;
+}
+
+.leaflet-routing-geocoders button.leaflet-routing-add-waypoint  {
   z-index: 100;
-  float: none !important;
+  float: none;
 }
 
 .leaflet-routing-alt-gpx-export {
