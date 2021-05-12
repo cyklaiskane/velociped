@@ -143,11 +143,13 @@ function initLayers(lyrs, map) {
   const layers = L.extend({ backgrounds: [], overlays: [] }, lyrs);
   const baseMaps = Object.fromEntries(layers.backgrounds.map(layer => createLayer(layer)));
   const overlayMaps = Object.fromEntries(layers.overlays.map(layer => createLayer(layer)));;
-  overlayMaps['Trafiksäkerhetsklassning (vektor)'] = L.vectorGrid.protobuf(apiBaseUrl + '/v1/tiles/ts/{z}/{x}/{y}.pbf', {
-    renderFactory: L.canvas.tile,
-    vectorTileLayerStyles: vtStyles,
-    minZoom: 13,
-  })
+  if (process.env.NODE_ENV === 'development') {
+    overlayMaps['Trafiksäkerhetsklassning (vektor)'] = L.vectorGrid.protobuf(apiBaseUrl + '/v1/tiles/ts/{z}/{x}/{y}.pbf', {
+      renderFactory: L.canvas.tile,
+      vectorTileLayerStyles: vtStyles,
+      minZoom: 13,
+    });
+  }
 
   baseMaps[Object.keys(baseMaps)[0]].addTo(map);
   return L.control.layers(baseMaps, overlayMaps, {

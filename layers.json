@@ -22,6 +22,15 @@
     "overlays": [
         {
             "type": "tms",
+            "name": "Cykelbarhetsklassning",
+            "url": "https://geodata.skane.se/geoserver/gwc/service/tms/1.0.0/rs%3Acyklaiskane_trafiksakerhetsklassat_natverk@EPSG%3A900913@png/{z}/{x}/{y}.png",
+            "options": {
+                "opacity": 0.75,
+                "attribution": "Region Skåne"
+            }
+        },
+        {
+            "type": "tms",
             "name": "Basnät för cykling",
             "url": "https://geodata.skane.se/geoserver/gwc/service/tms/1.0.0/rs%3Acyklaiskane_basnat@EPSG%3A900913@png/{z}/{x}/{y}.png",
             "options": {
